@@ -76,9 +76,10 @@ export function Header({ cartCount, wishlistCount, onCartClick, onWishlistClick 
           {/* Logo */}
           <Link to="/" className="flex leading-none select-none">
             <BrandLogo
-              imageClassName="h-11 md:h-14 w-auto object-contain"
-              titleClassName="text-[0.95rem] md:text-[1.1rem] font-semibold tracking-[0.18em] text-[var(--rose-gold)]"
-              taglineClassName="mt-1 text-[0.52rem] tracking-[0.32em] uppercase text-[var(--muted-foreground)]"
+              containerClassName="gap-2.5 md:gap-3"
+              imageClassName="h-[38px] w-[38px] md:h-12 md:w-12 shrink-0 object-contain"
+              titleClassName="text-[0.78rem] sm:text-[0.86rem] md:text-[1rem] font-semibold tracking-[0.14em] text-[var(--rose-gold)]"
+              taglineClassName="mt-1 text-[0.48rem] md:text-[0.52rem] tracking-[0.28em] uppercase text-[var(--muted-foreground)]"
             />
           </Link>
 
@@ -297,8 +298,9 @@ export function Header({ cartCount, wishlistCount, onCartClick, onWishlistClick 
             <div className="flex items-center justify-between p-6 border-b" style={{ borderColor: "rgba(201,168,76,0.18)" }}>
               <BrandLogo
                 showTagline={false}
-                imageClassName="h-10 w-auto object-contain"
-                titleClassName="text-[0.95rem] font-semibold tracking-[0.16em] text-[var(--rose-gold)]"
+                containerClassName="gap-2.5"
+                imageClassName="h-[38px] w-[38px] shrink-0 object-contain"
+                titleClassName="text-[0.78rem] font-semibold tracking-[0.12em] text-[var(--rose-gold)]"
               />
               <button onClick={() => setMobileOpen(false)} className="p-2 rounded-full hover:bg-secondary">
                 <X size={22} />

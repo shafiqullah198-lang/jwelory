@@ -1767,8 +1767,9 @@ export default function AdminDashboard() {
         {/* Brand header */}
         <div className="p-6 border-b border-[#C9A84C]/15 flex items-center justify-between">
           <BrandLogo
-            imageClassName="h-14 w-auto object-contain"
-            titleClassName="text-sm font-bold tracking-[0.14em] text-[#C9A84C]"
+            containerClassName="gap-3"
+            imageClassName="h-12 w-12 shrink-0 object-contain"
+            titleClassName="text-[0.82rem] font-bold tracking-[0.12em] text-[#C9A84C]"
             taglineClassName="mt-1 text-[9px] tracking-[0.25em] uppercase text-gray-500"
           />
           <button onClick={() => setSidebarOpen(false)} className="md:hidden text-gray-400 hover:text-white">
@@ -1903,8 +1904,9 @@ export default function AdminDashboard() {
             <div className="flex items-center gap-3">
               <BrandLogo
                 showTagline={false}
-                imageClassName="h-9 w-auto object-contain"
-                titleClassName="text-[0.72rem] font-extrabold tracking-[0.14em] text-[#C9A84C]"
+                containerClassName="gap-2.5"
+                imageClassName="h-9 w-9 shrink-0 object-contain"
+                titleClassName="text-[0.64rem] font-extrabold tracking-[0.1em] text-[#C9A84C]"
               />
               <h1 className="text-[10px] font-extrabold tracking-widest text-[#C9A84C]">ADMIN</h1>
             </div>
