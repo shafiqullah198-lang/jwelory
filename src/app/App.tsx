@@ -29,6 +29,7 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 
 import { apiFetch } from "./api";
+import { BRAND_NAME } from "./components/BrandLogo";
 
 interface CartItem extends Product {
   qty: number;
@@ -158,7 +159,27 @@ export function AppContent() {
   }));
 
   const location = useLocation();
-  const isAdmin = location.pathname.startsWith("/admin");
+  const isAdmin =
+    location.pathname.startsWith("/admin") || location.pathname.startsWith("/dashboard");
+
+  useEffect(() => {
+    if (location.pathname.startsWith("/dashboard") || location.pathname.startsWith("/admin")) {
+      document.title = `${BRAND_NAME} Admin`;
+      return;
+    }
+
+    if (location.pathname === "/login") {
+      document.title = `Login | ${BRAND_NAME}`;
+      return;
+    }
+
+    if (location.pathname === "/signup") {
+      document.title = `Sign Up | ${BRAND_NAME}`;
+      return;
+    }
+
+    document.title = BRAND_NAME;
+  }, [location.pathname]);
 
   // Hash-based smooth scroll helper
   useEffect(() => {
@@ -282,8 +303,15 @@ export function AppContent() {
           />
           <Route
             path="/dashboard"
-            element={<Navigate to="/admin/dashboard" replace />}
+            element={
+              <AdminGuard>
+                <AdminErrorBoundary>
+                  <AdminDashboard />
+                </AdminErrorBoundary>
+              </AdminGuard>
+            }
           />
+          <Route path="/admin/dashboard" element={<Navigate to="/dashboard" replace />} />
           {["dashboard", "products", "categories", "orders", "customers", "reviews", "hero-banners", "cms", "settings"].map((path) => (
             <Route
               key={path}
@@ -368,7 +396,7 @@ export function AdminRedirect() {
       if (loading) return;
       if (user) {
         if (user.is_staff) {
-          navigate("/admin/dashboard", { replace: true });
+          navigate("/dashboard", { replace: true });
         } else {
           await logout();
           navigate("/admin/login?error=not_admin", { replace: true });

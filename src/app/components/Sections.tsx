@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { motion } from "motion/react";
 import { Star, ArrowRight, Shield, Truck, RefreshCw, HeadphonesIcon, Instagram, Mail, CheckCircle2 } from "lucide-react";
 import { ProductCard, type Product } from "./ProductCard";
+import { BRAND_HASHTAG, BRAND_INSTAGRAM_HANDLE, BRAND_NAME, BrandLogo } from "./BrandLogo";
 
 interface SectionsProps {
   onAddToCart: (p: Product) => void;
@@ -300,8 +301,8 @@ export function WhyChooseUs() {
     <section id="about" className="py-20 md:py-28" style={{ background: "#060400" }}>
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         <div className="text-center mb-14">
-          <p style={eyebrow}>✦ The Rosella Promise ✦</p>
-          <h2 className="mt-3" style={heading}>Why Choose Rosella?</h2>
+          <p style={eyebrow}>✦ The {BRAND_NAME} Promise ✦</p>
+          <h2 className="mt-3" style={heading}>Why Choose {BRAND_NAME}?</h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {features.map(({ icon: Icon, title, desc }) => (
@@ -387,7 +388,7 @@ const igImages = [
 ];
 
 export function InstagramGallery({ handle }: { handle?: string }) {
-  const displayHandle = handle || "@rosellalujoyjewels";
+  const displayHandle = handle || BRAND_INSTAGRAM_HANDLE;
 
   return (
     <section className="py-20 md:py-24" style={{ background: "#060400" }}>
@@ -395,7 +396,7 @@ export function InstagramGallery({ handle }: { handle?: string }) {
         <div className="text-center mb-12">
           <p style={eyebrow}>✦ {displayHandle} ✦</p>
           <h2 className="mt-3" style={heading}>Follow Us on Instagram</h2>
-          <p className="mt-2" style={{ fontFamily: "'DM Sans', sans-serif", color: "var(--muted-foreground)", fontSize: "0.9rem" }}>Tag #RosellaJewels to be featured</p>
+          <p className="mt-2" style={{ fontFamily: "'DM Sans', sans-serif", color: "var(--muted-foreground)", fontSize: "0.9rem" }}>Tag {BRAND_HASHTAG} to be featured</p>
         </div>
         <div className="grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-3">
           {igImages.map((img, i) => (
@@ -435,7 +436,7 @@ export function Newsletter() {
         </div>
         <p style={eyebrow}>✦ Stay In The Loop ✦</p>
         <h2 className="mt-3 mb-3" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(1.8rem, 3.5vw, 2.5rem)", fontWeight: 600, color: "var(--foreground)" }}>
-          Join the Rosella Circle
+          Join the {BRAND_NAME} Circle
         </h2>
         <p className="mb-8" style={{ fontFamily: "'DM Sans', sans-serif", color: "var(--muted-foreground)", fontSize: "0.95rem", lineHeight: 1.65, fontWeight: 300 }}>
           Subscribe for early access to new collections, exclusive offers, styling tips, and a special 10% off your first order.
@@ -443,7 +444,7 @@ export function Newsletter() {
         {submitted ? (
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex items-center justify-center gap-3 py-4 px-8 rounded-full" style={{ background: "linear-gradient(135deg, #C9A84C, #8B6914)", color: "#fff" }}>
             <CheckCircle2 size={20} />
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 500 }}>Welcome to the Rosella family!</span>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 500 }}>Welcome to the {BRAND_NAME} family!</span>
           </motion.div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
@@ -479,10 +480,12 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-16 md:py-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           <div className="lg:col-span-2">
-            <div className="flex flex-col mb-5">
-              <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", fontWeight: 600, color: "var(--rose-gold)", letterSpacing: "0.05em" }}>Rosella</span>
-              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.6rem", letterSpacing: "0.35em", color: "rgba(255,255,255,0.3)", textTransform: "uppercase" }}>Luxury Jewels</span>
-            </div>
+            <BrandLogo
+              className="mb-5"
+              imageClassName="h-16 w-auto object-contain"
+              titleClassName="text-[1.1rem] font-semibold tracking-[0.18em] text-[var(--rose-gold)]"
+              taglineClassName="mt-1 text-[0.6rem] tracking-[0.35em] uppercase text-[rgba(255,255,255,0.3)]"
+            />
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.875rem", color: "rgba(255,255,255,0.4)", lineHeight: 1.75, fontWeight: 300, maxWidth: "280px" }}>
               Handcrafted artificial jewelry that celebrates your elegance. Premium designs, affordable luxury.
             </p>
@@ -516,7 +519,7 @@ export function Footer() {
           ))}
         </div>
         <div className="mt-14 pt-8 flex flex-col md:flex-row items-center justify-between gap-4" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.78rem", color: "rgba(255,255,255,0.25)" }}>© 2025 Rosella Luxury Jewels. All rights reserved.</p>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.78rem", color: "rgba(255,255,255,0.25)" }}>© 2025 {BRAND_NAME}. All rights reserved.</p>
           <div className="flex items-center gap-5">
             {["Privacy Policy", "Terms of Service", "Cookie Policy"].map((link) => (
               <a key={link} href="#" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.75rem", color: "rgba(255,255,255,0.25)", textDecoration: "none" }}>{link}</a>

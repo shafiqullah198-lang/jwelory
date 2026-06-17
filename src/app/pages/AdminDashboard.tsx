@@ -3,6 +3,7 @@ import { formatCurrency } from "../utils";
 import { useNavigate, useLocation } from "react-router";
 import { useAuth } from "../components/AuthContext";
 import { apiFetch } from "../api";
+import { BRAND_NAME, BrandLogo } from "../components/BrandLogo";
 import {
   LayoutDashboard,
   Package,
@@ -37,6 +38,7 @@ export default function AdminDashboard() {
   const location = useLocation();
 
   const getTabFromPath = (path: string) => {
+    if (path === "/dashboard") return "overview";
     if (path.endsWith("/admin/products")) return "products";
     if (path.endsWith("/admin/categories")) return "categories";
     if (path.endsWith("/admin/orders")) return "orders";
@@ -1764,10 +1766,11 @@ export default function AdminDashboard() {
       >
         {/* Brand header */}
         <div className="p-6 border-b border-[#C9A84C]/15 flex items-center justify-between">
-          <div className="flex flex-col">
-            <span className="text-2xl font-bold font-serif text-[#C9A84C] tracking-wider">Rosella</span>
-            <span className="text-[9px] tracking-[0.25em] text-gray-500 uppercase mt-0.5">Control Center</span>
-          </div>
+          <BrandLogo
+            imageClassName="h-14 w-auto object-contain"
+            titleClassName="text-sm font-bold tracking-[0.14em] text-[#C9A84C]"
+            taglineClassName="mt-1 text-[9px] tracking-[0.25em] uppercase text-gray-500"
+          />
           <button onClick={() => setSidebarOpen(false)} className="md:hidden text-gray-400 hover:text-white">
             <X size={20} />
           </button>
@@ -1776,7 +1779,7 @@ export default function AdminDashboard() {
         {/* Sidebar Tabs */}
         <nav className="flex-1 py-6 px-4 space-y-1 overflow-y-auto">
           <button
-            onClick={() => { navigate("/admin/dashboard"); setSidebarOpen(false); }}
+            onClick={() => { navigate("/dashboard"); setSidebarOpen(false); }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-xs font-semibold uppercase tracking-wider ${
               activeTab === "overview" ? "bg-white/5 text-white border-l-2 border-l-[#C9A84C]" : "text-gray-400 hover:text-white hover:bg-white/2"
             }`}
@@ -1897,11 +1900,18 @@ export default function AdminDashboard() {
             <button onClick={() => setSidebarOpen(true)} className="md:hidden text-gray-400 hover:text-white">
               <Menu size={20} />
             </button>
-            <h1 className="text-xs font-extrabold tracking-widest text-[#C9A84C]">SYSTEM CONTROL CENTER</h1>
+            <div className="flex items-center gap-3">
+              <BrandLogo
+                showTagline={false}
+                imageClassName="h-9 w-auto object-contain"
+                titleClassName="text-[0.72rem] font-extrabold tracking-[0.14em] text-[#C9A84C]"
+              />
+              <h1 className="text-[10px] font-extrabold tracking-widest text-[#C9A84C]">ADMIN</h1>
+            </div>
           </div>
           <div className="flex items-center gap-4">
             <a href="/" target="_blank" className="text-[10px] uppercase font-bold text-[#C9A84C] hover:underline flex items-center gap-1.5">
-              <span>View Client Storefront</span>
+              <span>View Storefront</span>
             </a>
           </div>
         </header>

@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router";
 import { useAuth } from "../components/AuthContext";
 import { LogIn, User, Lock, AlertCircle, ShieldAlert } from "lucide-react";
 import { apiFetch } from "../api";
+import { BRAND_NAME, BrandLogo } from "../components/BrandLogo";
 
 export default function AdminLogin() {
   const { user, refreshUser, apiOffline } = useAuth();
@@ -16,7 +17,7 @@ export default function AdminLogin() {
   // If already logged in as admin, redirect
   useEffect(() => {
     if (user && user.is_staff) {
-      navigate("/admin/dashboard");
+      navigate("/dashboard");
     }
   }, [user, navigate]);
 
@@ -44,7 +45,7 @@ export default function AdminLogin() {
       }
 
       await refreshUser();
-      navigate("/admin/dashboard");
+      navigate("/dashboard");
     } catch (err: any) {
       if (err.message?.includes("Failed to fetch") || err.name === "TypeError") {
         setError("Backend API is currently offline. Please check if the Django server is running.");
@@ -73,20 +74,17 @@ export default function AdminLogin() {
           <div className="w-12 h-12 rounded-full bg-[#C9A84C]/10 border border-[#C9A84C]/20 flex items-center justify-center mb-4 text-[#C9A84C]">
             <ShieldAlert size={24} />
           </div>
-          <h2
-            style={{
-              fontFamily: "'Playfair Display', serif",
-              color: "var(--rose-gold)",
-            }}
-            className="text-3xl font-extrabold tracking-wide"
-          >
-            Rosella Control Center
-          </h2>
+          <BrandLogo
+            align="center"
+            imageClassName="h-24 w-auto object-contain"
+            titleClassName="text-lg sm:text-xl font-extrabold tracking-[0.18em] text-[var(--rose-gold)] text-center"
+            taglineClassName="mt-2 text-[0.62rem] uppercase tracking-[0.3em] text-[var(--muted-foreground)] text-center"
+          />
           <p
             className="mt-2 text-xs uppercase tracking-widest font-semibold"
             style={{ color: "var(--muted-foreground)" }}
           >
-            Luxury Jewelry Admin Login
+            {BRAND_NAME} Admin Login
           </p>
         </div>
 

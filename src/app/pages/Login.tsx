@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useAuth } from "../components/AuthContext";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { LogIn, User, Lock, AlertCircle } from "lucide-react";
+import { BRAND_NAME } from "../components/BrandLogo";
 
 export default function Login() {
   const { login } = useAuth();
@@ -55,7 +56,7 @@ export default function Login() {
             className="mt-2 text-sm"
             style={{ color: "var(--muted-foreground)" }}
           >
-            Sign in to your Rosella account
+            Sign in to your {BRAND_NAME} account
           </p>
         </div>
 

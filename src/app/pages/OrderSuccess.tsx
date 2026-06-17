@@ -3,6 +3,7 @@ import { formatCurrency } from "../utils";
 import { useParams, Link } from "react-router";
 import { CheckCircle2, ShoppingBag, ClipboardList, Printer, Loader2 } from "lucide-react";
 import { apiFetch } from "../api";
+import { BRAND_NAME } from "../components/BrandLogo";
 
 export default function OrderSuccess() {
   const { order_number } = useParams<{ order_number: string }>();
@@ -89,7 +90,7 @@ export default function OrderSuccess() {
               Order Confirmed!
             </h1>
             <p className="mt-2 text-sm" style={{ color: "var(--muted-foreground)" }}>
-              Thank you for shopping with Rosella Luxury Jewels. Your purchase is complete.
+              Thank you for shopping with {BRAND_NAME}. Your purchase is complete.
             </p>
           </div>
 
@@ -166,9 +167,9 @@ export default function OrderSuccess() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-6" style={{ borderColor: "rgba(201, 168, 76, 0.12)" }}>
               <div>
                 <h2 className="text-xl font-bold tracking-widest text-white uppercase" style={{ fontFamily: "'Playfair Display', serif" }}>
-                  ROSELLA
+                  {BRAND_NAME}
                 </h2>
-                <p className="text-xs uppercase tracking-wider mt-1" style={{ color: "var(--rose-gold)" }}>Luxury Jewels & Co.</p>
+                <p className="text-xs uppercase tracking-wider mt-1" style={{ color: "var(--rose-gold)" }}>Luxury Jewelry</p>
               </div>
               <div className="mt-4 sm:mt-0 text-left sm:text-right">
                 <span className="text-xs uppercase tracking-wider font-semibold border px-3 py-1 rounded-full text-white" style={{ borderColor: "rgba(201, 168, 76, 0.2)" }}>
@@ -238,7 +239,7 @@ export default function OrderSuccess() {
             {/* Footer note */}
             <div className="text-center pt-8 border-t" style={{ borderColor: "rgba(201, 168, 76, 0.08)" }}>
               <p className="text-[11px]" style={{ color: "var(--muted-foreground)" }}>
-                This is a computer generated receipt. Thank you for your luxury purchase at Rosella.
+                This is a computer generated receipt. Thank you for your purchase at {BRAND_NAME}.
               </p>
             </div>
           </div>

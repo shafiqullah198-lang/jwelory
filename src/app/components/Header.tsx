@@ -4,6 +4,7 @@ import { ShoppingBag, Heart, Search, Menu, X, ChevronDown, User as UserIcon } fr
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "./AuthContext";
 import { apiFetch } from "../api";
+import { BrandLogo } from "./BrandLogo";
 
 interface HeaderProps {
   cartCount: number;
@@ -73,30 +74,12 @@ export function Header({ cartCount, wishlistCount, onCartClick, onWishlistClick 
       >
         <div className="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <Link to="/" className="flex flex-col leading-none select-none">
-            <span
-              style={{
-                fontFamily: "'Playfair Display', serif",
-                fontSize: "1.5rem",
-                fontWeight: 600,
-                color: "var(--rose-gold)",
-                letterSpacing: "0.05em",
-              }}
-            >
-              Rosella
-            </span>
-            <span
-              style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: "0.55rem",
-                letterSpacing: "0.35em",
-                color: "var(--muted-foreground)",
-                textTransform: "uppercase",
-                marginTop: "-2px",
-              }}
-            >
-              Luxury Jewels
-            </span>
+          <Link to="/" className="flex leading-none select-none">
+            <BrandLogo
+              imageClassName="h-11 md:h-14 w-auto object-contain"
+              titleClassName="text-[0.95rem] md:text-[1.1rem] font-semibold tracking-[0.18em] text-[var(--rose-gold)]"
+              taglineClassName="mt-1 text-[0.52rem] tracking-[0.32em] uppercase text-[var(--muted-foreground)]"
+            />
           </Link>
 
           {/* Desktop Nav */}
@@ -312,9 +295,11 @@ export function Header({ cartCount, wishlistCount, onCartClick, onWishlistClick 
             style={{ background: "#080600" }}
           >
             <div className="flex items-center justify-between p-6 border-b" style={{ borderColor: "rgba(201,168,76,0.18)" }}>
-              <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.2rem", color: "var(--rose-gold)", fontWeight: 600 }}>
-                Rosella
-              </span>
+              <BrandLogo
+                showTagline={false}
+                imageClassName="h-10 w-auto object-contain"
+                titleClassName="text-[0.95rem] font-semibold tracking-[0.16em] text-[var(--rose-gold)]"
+              />
               <button onClick={() => setMobileOpen(false)} className="p-2 rounded-full hover:bg-secondary">
                 <X size={22} />
               </button>

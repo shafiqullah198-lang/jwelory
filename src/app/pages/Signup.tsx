@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useAuth } from "../components/AuthContext";
 import { Link, useNavigate } from "react-router";
 import { UserPlus, User, Mail, Lock, AlertCircle } from "lucide-react";
+import { BRAND_NAME } from "../components/BrandLogo";
 
 export default function Signup() {
   const { signup } = useAuth();
@@ -73,7 +74,7 @@ export default function Signup() {
             className="mt-2 text-sm"
             style={{ color: "var(--muted-foreground)" }}
           >
-            Join the Rosella Circle today
+            Join the {BRAND_NAME} circle today
           </p>
         </div>
 
