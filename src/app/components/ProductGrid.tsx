@@ -13,32 +13,7 @@ const SORT_OPTIONS = [
   { label: "Newest First", value: "newest" },
 ];
 
-export const ALL_PRODUCTS: Product[] = [
-  { id: 1, name: "Rose Gold Pearl Drop Earrings", category: "Earrings", price: 849, originalPrice: 1299, rating: 4.9, reviewCount: 234, image: "https://images.unsplash.com/photo-1723726871280-ab921c7e60c0?w=400&h=500&fit=crop&auto=format", isNew: true, isTrending: true },
-  { id: 2, name: "Delicate Heart Pendant Necklace", category: "Necklaces", price: 1099, originalPrice: 1599, rating: 4.8, reviewCount: 189, image: "https://images.unsplash.com/photo-1513122991877-4a5678e6d72f?w=400&h=500&fit=crop&auto=format", isTrending: true },
-  { id: 3, name: "Gold Floral Statement Ring", category: "Rings", price: 699, originalPrice: 999, rating: 4.7, reviewCount: 312, image: "https://images.unsplash.com/photo-1592752411524-e823937f60dd?w=400&h=500&fit=crop&auto=format", isNew: true },
-  { id: 4, name: "Charm Bead Bracelet Set", category: "Bracelets", price: 1249, originalPrice: 1799, rating: 4.9, reviewCount: 156, image: "https://images.unsplash.com/photo-1633934542430-0905ccb5f050?w=400&h=500&fit=crop&auto=format" },
-  { id: 5, name: "Layered Gold Hoop Earrings", category: "Earrings", price: 649, originalPrice: 899, rating: 4.6, reviewCount: 421, image: "https://images.unsplash.com/photo-1632525231035-c054cd5019db?w=400&h=500&fit=crop&auto=format", isTrending: true },
-  { id: 6, name: "Antique Rose Necklace Set", category: "Sets", price: 2499, originalPrice: 3499, rating: 4.9, reviewCount: 98, image: "https://images.unsplash.com/photo-1777126413365-f4113a23eeab?w=400&h=500&fit=crop&auto=format", isNew: true },
-  { id: 7, name: "Crystal Bangle Trio", category: "Bangles", price: 899, originalPrice: 1299, rating: 4.7, reviewCount: 267, image: "https://images.unsplash.com/photo-1702476320482-0736c4b962f5?w=400&h=500&fit=crop&auto=format" },
-  { id: 8, name: "Solitaire Diamond Ring", category: "Rings", price: 1599, originalPrice: 2199, rating: 4.8, reviewCount: 143, image: "https://images.unsplash.com/photo-1588909006332-2e30f95291bc?w=400&h=500&fit=crop&auto=format", isTrending: true },
-  { id: 9, name: "Floral Jhumka Earrings", category: "Earrings", price: 549, originalPrice: 799, rating: 4.5, reviewCount: 534, image: "https://images.unsplash.com/photo-1692521248622-98a1da77b673?w=400&h=500&fit=crop&auto=format", isNew: true },
-  { id: 10, name: "Pearl Layered Necklace", category: "Necklaces", price: 1349, originalPrice: 1899, rating: 4.8, reviewCount: 176, image: "https://images.unsplash.com/photo-1704957205144-299bbf127891?w=400&h=500&fit=crop&auto=format" },
-  { id: 11, name: "Gold Mangalsutra Chain", category: "Necklaces", price: 1899, originalPrice: 2499, rating: 4.9, reviewCount: 312, image: "https://images.unsplash.com/photo-1717282924908-1c0262e4b136?w=400&h=500&fit=crop&auto=format", isTrending: true },
-  { id: 12, name: "Infinity Twist Bracelet", category: "Bracelets", price: 799, originalPrice: 1099, rating: 4.6, reviewCount: 208, image: "https://images.unsplash.com/photo-1565817292726-56c96f34355b?w=400&h=500&fit=crop&auto=format" },
-  { id: 13, name: "Temple Design Jhumkas", category: "Earrings", price: 749, originalPrice: 999, rating: 4.7, reviewCount: 389, image: "https://images.unsplash.com/photo-1720686615374-ea04dac6a66e?w=400&h=500&fit=crop&auto=format", isNew: true },
-  { id: 14, name: "Kundan Bridal Set", category: "Sets", price: 3499, originalPrice: 4999, rating: 4.9, reviewCount: 67, image: "https://images.unsplash.com/photo-1773097258713-a7ccd75e2aac?w=400&h=500&fit=crop&auto=format" },
-  { id: 15, name: "Oxidised Silver Bangles (Set of 6)", category: "Bangles", price: 649, originalPrice: 899, rating: 4.5, reviewCount: 456, image: "https://images.unsplash.com/photo-1723361656146-f201d215c49c?w=400&h=500&fit=crop&auto=format", isTrending: true },
-  { id: 16, name: "Gold Adjustable Ring", category: "Rings", price: 449, originalPrice: 649, rating: 4.4, reviewCount: 612, image: "https://images.unsplash.com/photo-1592752411563-02ee3ef57f2b?w=400&h=500&fit=crop&auto=format" },
-  { id: 17, name: "Butterfly Charm Necklace", category: "Necklaces", price: 949, originalPrice: 1299, rating: 4.7, reviewCount: 234, image: "https://images.unsplash.com/photo-1558882268-15aa056d885f?w=400&h=500&fit=crop&auto=format", isNew: true },
-  { id: 18, name: "Diamond-Cut Hoop Earrings", category: "Earrings", price: 999, originalPrice: 1399, rating: 4.8, reviewCount: 178, image: "https://images.unsplash.com/photo-1764265923632-b2126ec0dedc?w=400&h=500&fit=crop&auto=format" },
-  { id: 19, name: "Floral Meenakari Set", category: "Sets", price: 2799, originalPrice: 3999, rating: 4.9, reviewCount: 89, image: "https://images.unsplash.com/photo-1762122944695-4ee7032b7c9e?w=400&h=500&fit=crop&auto=format", isTrending: true },
-  { id: 20, name: "Tennis Bracelet Gold", category: "Bracelets", price: 1699, originalPrice: 2299, rating: 4.8, reviewCount: 145, image: "https://images.unsplash.com/photo-1779406084084-d47bb281136c?w=400&h=500&fit=crop&auto=format" },
-  { id: 21, name: "Stackable Thin Bangles (4 pcs)", category: "Bangles", price: 499, originalPrice: 699, rating: 4.6, reviewCount: 523, image: "https://images.unsplash.com/photo-1702476320482-0736c4b962f5?w=400&h=500&fit=crop&auto=format&crop=top", isNew: true },
-  { id: 22, name: "Emerald Drop Earrings", category: "Earrings", price: 1199, originalPrice: 1699, rating: 4.9, reviewCount: 201, image: "https://images.unsplash.com/photo-1723726871280-ab921c7e60c0?w=400&h=500&fit=crop&auto=format&crop=center", isTrending: true },
-  { id: 23, name: "Rose Gold Chain Necklace", category: "Necklaces", price: 1099, originalPrice: 1499, rating: 4.7, reviewCount: 167, image: "https://images.unsplash.com/photo-1513122991877-4a5678e6d72f?w=400&h=500&fit=crop&auto=format&crop=top" },
-  { id: 24, name: "Vintage Statement Ring", category: "Rings", price: 849, originalPrice: 1199, rating: 4.8, reviewCount: 289, image: "https://images.unsplash.com/photo-1565817292726-56c96f34355b?w=400&h=500&fit=crop&auto=format&crop=top", isNew: true },
-];
+export const ALL_PRODUCTS: Product[] = [];
 
 interface ProductGridProps {
   onAddToCart: (product: Product) => void;

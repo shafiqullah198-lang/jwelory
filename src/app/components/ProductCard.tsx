@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Heart, ShoppingBag, Star, Eye, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { formatCurrency } from "../utils";
 
 export interface Product {
   id: number;
@@ -14,6 +15,7 @@ export interface Product {
   badge?: string;
   isNew?: boolean;
   isTrending?: boolean;
+  slug?: string;
 }
 
 interface ProductCardProps {
@@ -26,7 +28,18 @@ const GOLD = "#C9A84C";
 const GOLD_DARK = "#8B6914";
 
 export function ProductCard({ product, onAddToCart, onQuickView }: ProductCardProps) {
-  const [wishlisted, setWishlisted] = useState(false);
+  const [wishlisted, setWishlisted] = useState(() => {
+    const saved = localStorage.getItem("rosella_wishlist");
+    if (saved) {
+      try {
+        const list = JSON.parse(saved);
+        return list.some((item: any) => item.id === product.id);
+      } catch (e) {
+        return false;
+      }
+    }
+    return false;
+  });
   const [addedToCart, setAddedToCart] = useState(false);
   const [hovered, setHovered] = useState(false);
 
@@ -36,6 +49,29 @@ export function ProductCard({ product, onAddToCart, onQuickView }: ProductCardPr
     onAddToCart(product);
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 1800);
+  };
+
+  const handleToggleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const saved = localStorage.getItem("rosella_wishlist");
+    let list: Product[] = [];
+    if (saved) {
+      try {
+        list = JSON.parse(saved);
+      } catch (err) {}
+    }
+    const exists = list.some((item) => item.id === product.id);
+    let updated;
+    if (exists) {
+      updated = list.filter((item) => item.id !== product.id);
+      setWishlisted(false);
+    } else {
+      updated = [...list, product];
+      setWishlisted(true);
+    }
+    localStorage.setItem("rosella_wishlist", JSON.stringify(updated));
+    window.dispatchEvent(new Event("rosella_wishlist_changed"));
   };
 
   return (
@@ -124,7 +160,7 @@ export function ProductCard({ product, onAddToCart, onQuickView }: ProductCardPr
 
         {/* Wishlist */}
         <button
-          onClick={() => setWishlisted((w) => !w)}
+          onClick={handleToggleWishlist}
           className="absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200"
           style={{
             background: wishlisted ? GOLD : "rgba(10,8,0,0.75)",
@@ -227,7 +263,7 @@ export function ProductCard({ product, onAddToCart, onQuickView }: ProductCardPr
               letterSpacing: "0.02em",
             }}
           >
-            ₹{product.price.toLocaleString()}
+            {formatCurrency(product.price)}
           </span>
           {product.originalPrice > product.price && (
             <span
@@ -238,7 +274,7 @@ export function ProductCard({ product, onAddToCart, onQuickView }: ProductCardPr
                 textDecoration: "line-through",
               }}
             >
-              ₹{product.originalPrice.toLocaleString()}
+              {formatCurrency(product.originalPrice)}
             </span>
           )}
         </div>

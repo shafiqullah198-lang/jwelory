@@ -1,5 +1,8 @@
-import { X, ShoppingBag, Trash2, ArrowRight } from "lucide-react";
+import { X, ShoppingBag, Trash2, ArrowRight, Minus, Plus } from "lucide-react";
+import { formatCurrency } from "../utils";
 import { motion, AnimatePresence } from "motion/react";
+import { useNavigate } from "react-router";
+import { useAuth } from "./AuthContext";
 import type { Product } from "./ProductCard";
 
 interface CartItem extends Product {
@@ -11,11 +14,23 @@ interface CartDrawerProps {
   onClose: () => void;
   items: CartItem[];
   onRemove: (id: number) => void;
+  onUpdateQty: (id: number, qty: number) => void;
 }
 
-export function CartDrawer({ open, onClose, items, onRemove }: CartDrawerProps) {
+export function CartDrawer({ open, onClose, items, onRemove, onUpdateQty }: CartDrawerProps) {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const total = items.reduce((sum, item) => sum + item.price * item.qty, 0);
   const count = items.reduce((sum, item) => sum + item.qty, 0);
+
+  const handleCheckout = () => {
+    onClose();
+    if (user) {
+      navigate("/checkout");
+    } else {
+      navigate("/login?next=/checkout");
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -81,11 +96,23 @@ export function CartDrawer({ open, onClose, items, onRemove }: CartDrawerProps) 
                         <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "0.9rem", fontWeight: 500, color: "var(--foreground)", lineHeight: 1.3 }}>{item.name}</p>
                         <div className="flex items-center justify-between mt-auto">
                           <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "1rem", fontWeight: 700, color: "var(--rose-gold)" }}>
-                            ₹{(item.price * item.qty).toLocaleString()}
+                            {formatCurrency(item.price * item.qty)}
                           </span>
                           <div className="flex items-center gap-2">
-                            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.78rem", color: "var(--muted-foreground)" }}>Qty: {item.qty}</span>
-                            <button onClick={() => onRemove(item.id)} className="p-1.5 rounded-full hover:bg-red-50 transition-colors">
+                            <button
+                              onClick={() => onUpdateQty(item.id, item.qty - 1)}
+                              className="w-5 h-5 rounded-full flex items-center justify-center text-white border border-[#C9A84C]/35 hover:bg-[#C9A84C]/10 transition-colors"
+                            >
+                              <Minus size={10} />
+                            </button>
+                            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.78rem", color: "var(--foreground)", minWidth: "12px", textAlign: "center" }}>{item.qty}</span>
+                            <button
+                              onClick={() => onUpdateQty(item.id, item.qty + 1)}
+                              className="w-5 h-5 rounded-full flex items-center justify-center text-white border border-[#C9A84C]/35 hover:bg-[#C9A84C]/10 transition-colors"
+                            >
+                              <Plus size={10} />
+                            </button>
+                            <button onClick={() => onRemove(item.id)} className="p-1 rounded-full hover:bg-white/5 transition-colors ml-1">
                               <Trash2 size={13} style={{ color: "#d4183d" }} />
                             </button>
                           </div>
@@ -103,13 +130,14 @@ export function CartDrawer({ open, onClose, items, onRemove }: CartDrawerProps) 
                 <div className="flex items-center justify-between mb-4">
                   <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem", color: "var(--muted-foreground)" }}>Subtotal</span>
                   <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.3rem", fontWeight: 700, color: "var(--rose-gold)" }}>
-                    ₹{total.toLocaleString()}
+                    {formatCurrency(total)}
                   </span>
                 </div>
                 <p className="mb-4 text-center" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.78rem", color: "var(--rose-gold)" }}>
                   🎉 Free shipping on this order!
                 </p>
                 <button
+                  onClick={handleCheckout}
                   className="w-full flex items-center justify-center gap-2 py-4 rounded-full text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
                   style={{
                     background: "linear-gradient(135deg, var(--rose-gold), #8B6914)",

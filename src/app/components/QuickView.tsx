@@ -1,6 +1,7 @@
 import { X, Star, Heart, ShoppingBag, Shield, Truck } from "lucide-react";
+import { formatCurrency } from "../utils";
 import { motion, AnimatePresence } from "motion/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Product } from "./ProductCard";
 
 interface QuickViewProps {
@@ -14,11 +15,51 @@ export function QuickView({ product, onClose, onAddToCart }: QuickViewProps) {
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
 
+  useEffect(() => {
+    if (!product) return;
+    const saved = localStorage.getItem("rosella_wishlist");
+    if (saved) {
+      try {
+        const list = JSON.parse(saved);
+        setWishlisted(list.some((item: any) => item.id === product.id));
+      } catch (e) {
+        setWishlisted(false);
+      }
+    } else {
+      setWishlisted(false);
+    }
+    setQty(1);
+  }, [product]);
+
   const handleAdd = () => {
     if (!product) return;
-    onAddToCart(product);
+    for (let i = 0; i < qty; i++) {
+      onAddToCart(product);
+    }
     setAdded(true);
     setTimeout(() => setAdded(false), 1800);
+  };
+
+  const handleToggleWishlist = () => {
+    if (!product) return;
+    const saved = localStorage.getItem("rosella_wishlist");
+    let list: Product[] = [];
+    if (saved) {
+      try {
+        list = JSON.parse(saved);
+      } catch (err) {}
+    }
+    const exists = list.some((item) => item.id === product.id);
+    let updated;
+    if (exists) {
+      updated = list.filter((item) => item.id !== product.id);
+      setWishlisted(false);
+    } else {
+      updated = [...list, product];
+      setWishlisted(true);
+    }
+    localStorage.setItem("rosella_wishlist", JSON.stringify(updated));
+    window.dispatchEvent(new Event("rosella_wishlist_changed"));
   };
 
   const discount = product ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) : 0;
@@ -83,12 +124,12 @@ export function QuickView({ product, onClose, onAddToCart }: QuickViewProps) {
                 {/* Price */}
                 <div className="flex items-center gap-3">
                   <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", fontWeight: 700, color: "var(--rose-gold)" }}>
-                    ₹{product.price.toLocaleString()}
+                    {formatCurrency(product.price)}
                   </span>
                   {discount > 0 && (
                     <>
                       <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "1rem", color: "var(--muted-foreground)", textDecoration: "line-through" }}>
-                        ₹{product.originalPrice.toLocaleString()}
+                        {formatCurrency(product.originalPrice)}
                       </span>
                       <span
                         className="px-2.5 py-1 rounded-full text-white"
@@ -133,11 +174,11 @@ export function QuickView({ product, onClose, onAddToCart }: QuickViewProps) {
                     {added ? "Added to Cart!" : "Add to Cart"}
                   </button>
                   <button
-                    onClick={() => setWishlisted((w) => !w)}
+                    onClick={handleToggleWishlist}
                     className="w-12 h-12 rounded-full flex items-center justify-center transition-all"
-                    style={{ border: "1.5px solid rgba(201,168,76,0.3)", background: wishlisted ? "var(--rose-gold)" : "#fff", cursor: "pointer" }}
+                    style={{ border: "1.5px solid rgba(201,168,76,0.3)", background: wishlisted ? "var(--rose-gold)" : "rgba(255,255,255,0.05)", cursor: "pointer" }}
                   >
-                    <Heart size={18} fill={wishlisted ? "#fff" : "none"} stroke={wishlisted ? "#fff" : "var(--rose-gold)"} />
+                    <Heart size={18} fill={wishlisted ? "#000" : "none"} stroke={wishlisted ? "#000" : "var(--rose-gold)"} />
                   </button>
                 </div>
 

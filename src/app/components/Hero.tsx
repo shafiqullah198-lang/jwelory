@@ -1,9 +1,27 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { ArrowRight, Volume2, VolumeX } from "lucide-react";
+import { Link } from "react-router";
 import heroVideo from "../../imports/jewelry_no_watermark__2___1_-1.mp4";
 
-export function Hero() {
+interface HeroProps {
+  bannerData?: {
+    title_line1: string;
+    title_line2: string;
+    title_line3: string;
+    eyebrow_text: string;
+    description: string;
+    primary_button_text: string;
+    primary_button_link: string;
+    secondary_button_text: string;
+    secondary_button_link: string;
+    video: string;
+    image: string;
+    stats: Array<{ value: string; label: string }>;
+  };
+}
+
+export function Hero({ bannerData }: HeroProps = {}) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [muted, setMuted] = useState(true);
   const [loaded, setLoaded] = useState(false);
@@ -22,6 +40,8 @@ export function Hero() {
     setMuted((m) => !m);
   };
 
+  const videoSource = bannerData?.video || heroVideo;
+
   return (
     <section
       style={{
@@ -36,6 +56,7 @@ export function Hero() {
     >
       {/* ── FULL-SCREEN BACKGROUND VIDEO ── */}
       <video
+        key={videoSource}
         ref={videoRef}
         autoPlay
         muted
@@ -55,7 +76,7 @@ export function Hero() {
           transition: "opacity 1.2s ease",
         }}
       >
-        <source src={heroVideo} type="video/mp4" />
+        <source src={videoSource} type="video/mp4" />
       </video>
 
       {/* ── CINEMATIC OVERLAYS ── */}
@@ -139,7 +160,7 @@ export function Hero() {
                 fontWeight: 400,
               }}
             >
-              New Collection 2025
+              {bannerData?.eyebrow_text || "New Collection 2025"}
             </span>
             <span
               style={{
@@ -167,7 +188,7 @@ export function Hero() {
               letterSpacing: "-0.01em",
             }}
           >
-            Wear Your
+            {bannerData?.title_line1 || "Wear Your"}
             <br />
             <em
               style={{
@@ -179,10 +200,10 @@ export function Hero() {
                 backgroundClip: "text",
               }}
             >
-              Inner
+              {bannerData?.title_line2 || "Inner"}
             </em>
             <br />
-            Radiance
+            {bannerData?.title_line3 || "Radiance"}
           </motion.h1>
 
           {/* Description */}
@@ -200,8 +221,7 @@ export function Hero() {
               marginBottom: "2.5rem",
             }}
           >
-            Exquisite handcrafted artificial jewelry — where timeless elegance meets
-            contemporary artistry. Crafted for the discerning modern woman.
+            {bannerData?.description || "Exquisite handcrafted artificial jewelry — where timeless elegance meets contemporary artistry. Crafted for the discerning modern woman."}
           </motion.p>
 
           {/* CTAs */}
@@ -212,8 +232,8 @@ export function Hero() {
             style={{ display: "flex", flexWrap: "wrap", gap: "1rem", marginBottom: "3.5rem" }}
           >
             {/* Primary */}
-            <a
-              href="#bestsellers"
+            <Link
+              to={bannerData?.primary_button_link || "/products"}
               className="group"
               style={{
                 display: "inline-flex",
@@ -241,13 +261,13 @@ export function Hero() {
                 (e.currentTarget as HTMLElement).style.boxShadow = "0 8px 32px rgba(201,168,76,0.45)";
               }}
             >
-              Shop Collection
+              {bannerData?.primary_button_text || "Shop Collection"}
               <ArrowRight size={15} />
-            </a>
+            </Link>
 
             {/* Secondary */}
-            <a
-              href="#new-arrivals"
+            <Link
+              to={bannerData?.secondary_button_link || "/#new-arrivals"}
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -275,8 +295,8 @@ export function Hero() {
                 (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
               }}
             >
-              New Arrivals
-            </a>
+              {bannerData?.secondary_button_text || "New Arrivals"}
+            </Link>
           </motion.div>
 
           {/* Trust stats */}
@@ -286,11 +306,11 @@ export function Hero() {
             transition={{ duration: 0.7, delay: 0.82 }}
             style={{ display: "flex", alignItems: "center", gap: "2.5rem", flexWrap: "wrap" }}
           >
-            {[
+            {(bannerData?.stats || [
               { value: "50K+", label: "Happy Customers" },
               { value: "2K+",  label: "Designs" },
               { value: "4.9★", label: "Rating" },
-            ].map((stat, i) => (
+            ]).map((stat, i) => (
               <div key={stat.label} style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                 {i > 0 && (
                   <div
