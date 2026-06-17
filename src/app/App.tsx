@@ -280,6 +280,10 @@ export function AppContent() {
               </AdminErrorBoundary>
             }
           />
+          <Route
+            path="/dashboard"
+            element={<Navigate to="/admin/dashboard" replace />}
+          />
           {["dashboard", "products", "categories", "orders", "customers", "reviews", "hero-banners", "cms", "settings"].map((path) => (
             <Route
               key={path}
@@ -293,6 +297,7 @@ export function AppContent() {
               }
             />
           ))}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
 

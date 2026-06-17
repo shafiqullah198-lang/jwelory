@@ -16,22 +16,39 @@ function getCookie(name: string): string | null {
   return cookieValue;
 }
 
+const rawApiBaseUrl = (import.meta.env.VITE_API_URL || "").trim();
+
+function normalizeBaseUrl(baseUrl: string): string {
+  const trimmed = baseUrl.replace(/\/+$/, "");
+  if (!trimmed) {
+    return "";
+  }
+
+  return trimmed.endsWith("/api") ? trimmed : `${trimmed}/api`;
+}
+
+const apiBaseUrl = normalizeBaseUrl(rawApiBaseUrl);
+
+function buildApiUrl(endpoint: string): string {
+  if (endpoint.startsWith("http")) {
+    return endpoint;
+  }
+
+  const normalizedEndpoint = endpoint.replace(/^\/+/, "");
+
+  if (!apiBaseUrl) {
+    const localBasePath = endpoint.startsWith("/") ? "" : "/api";
+    return `${localBasePath}/${normalizedEndpoint}`.replace(/\/{2,}/g, "/");
+  }
+
+  return `${apiBaseUrl}/${normalizedEndpoint}`;
+}
+
 export async function apiFetch(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<any> {
-  let url;
-  if (endpoint.startsWith("http")) {
-    url = endpoint;
-  } else if (endpoint.startsWith("/")) {
-    const isLocalhost = window.location.hostname === "localhost";
-    const base = isLocalhost ? "http://localhost:8000" : "http://127.0.0.1:8000";
-    url = `${base}${endpoint}`;
-  } else {
-    const isLocalhost = window.location.hostname === "localhost";
-    const base = isLocalhost ? "http://localhost:8000/api" : "http://127.0.0.1:8000/api";
-    url = `${base}/${endpoint}`;
-  }
+  const url = buildApiUrl(endpoint);
 
   // Build headers
   const headers = new Headers(options.headers || {});
@@ -58,9 +75,9 @@ export async function apiFetch(
       credentials: "include", // Required to send session cookies
     });
   } catch (err: any) {
-    if (url.startsWith("http")) {
+    if (url.startsWith("http") && !apiBaseUrl) {
       console.warn(`Direct fetch to ${url} failed. Retrying via relative proxy...`);
-      const fallbackUrl = endpoint.startsWith("/") ? endpoint : `/api/${endpoint}`;
+      const fallbackUrl = endpoint.startsWith("/") ? endpoint : `/api/${endpoint.replace(/^\/+/, "")}`;
       response = await fetch(fallbackUrl, {
         ...options,
         headers,

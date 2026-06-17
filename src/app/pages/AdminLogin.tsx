@@ -33,57 +33,16 @@ export default function AdminLogin() {
     setError("");
     setLoading(true);
 
-    const isLocalhost = window.location.hostname === "localhost";
-    const apiHost = isLocalhost ? "http://localhost:8000" : "http://127.0.0.1:8000";
-    const targetUrl = `${apiHost}/api/admin/login/`;
-
-    console.log(`Submitting admin login to: ${targetUrl}`);
-
     try {
-      let response;
-      let usedUrl = targetUrl;
-      try {
-        response = await fetch(targetUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({ username, password }),
-        });
-      } catch (directErr) {
-        console.warn("Direct connection to admin login failed. Retrying via relative proxy...", directErr);
-        usedUrl = "/api/admin/login/";
-        response = await fetch(usedUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "same-origin",
-          body: JSON.stringify({ username, password }),
-        });
-      }
+      const data = await apiFetch("admin/login/", {
+        method: "POST",
+        body: JSON.stringify({ username, password }),
+      });
 
-      console.log(`Admin login API URL: ${usedUrl}, Status: ${response.status}`);
-
-      const responseText = await response.text();
-      if (!responseText || responseText.trim() === "") {
-        throw new Error("Empty response received from backend API.");
-      }
-
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (parseErr) {
-        console.error("Failed to parse response JSON. Raw text:", responseText);
-        throw new Error("Invalid response format received from server. Expected JSON.");
-      }
-
-      if (!response.ok || !data.success) {
+      if (!data?.success) {
         throw new Error(data.message || "Invalid credentials.");
       }
 
-      // Sync user state in AuthContext
       await refreshUser();
       navigate("/admin/dashboard");
     } catch (err: any) {
