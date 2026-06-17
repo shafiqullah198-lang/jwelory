@@ -16,7 +16,10 @@ function getCookie(name: string): string | null {
   return cookieValue;
 }
 
-const rawApiBaseUrl = (import.meta.env.VITE_API_URL || "").trim();
+const DEFAULT_API_BASE_URL = "https://jewelery1.pythonanywhere.com";
+const rawApiBaseUrl = (
+  import.meta.env.VITE_API_URL || DEFAULT_API_BASE_URL
+).trim();
 
 function normalizeBaseUrl(baseUrl: string): string {
   const trimmed = baseUrl.replace(/\/+$/, "");
@@ -35,12 +38,6 @@ function buildApiUrl(endpoint: string): string {
   }
 
   const normalizedEndpoint = endpoint.replace(/^\/+/, "");
-
-  if (!apiBaseUrl) {
-    const localBasePath = endpoint.startsWith("/") ? "" : "/api";
-    return `${localBasePath}/${normalizedEndpoint}`.replace(/\/{2,}/g, "/");
-  }
-
   return `${apiBaseUrl}/${normalizedEndpoint}`;
 }
 
@@ -67,26 +64,11 @@ export async function apiFetch(
     }
   }
 
-  let response;
-  try {
-    response = await fetch(url, {
-      ...options,
-      headers,
-      credentials: "include", // Required to send session cookies
-    });
-  } catch (err: any) {
-    if (url.startsWith("http") && !apiBaseUrl) {
-      console.warn(`Direct fetch to ${url} failed. Retrying via relative proxy...`);
-      const fallbackUrl = endpoint.startsWith("/") ? endpoint : `/api/${endpoint.replace(/^\/+/, "")}`;
-      response = await fetch(fallbackUrl, {
-        ...options,
-        headers,
-        credentials: "same-origin",
-      });
-    } else {
-      throw err;
-    }
-  }
+  const response = await fetch(url, {
+    ...options,
+    headers,
+    credentials: "include", // Required to send session cookies
+  });
 
   if (!response.ok) {
     let errorData;
