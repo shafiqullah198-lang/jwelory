@@ -231,7 +231,7 @@ export function Hero({ bannerData }: HeroProps = {}) {
                 padding: "15px 36px",
                 borderRadius: "100px",
                 background: PRIMARY_CTA_BACKGROUND,
-                color: "#fff",
+                color: "var(--primary-foreground)",
                 fontFamily: "'DM Sans', sans-serif",
                 fontWeight: 500,
                 fontSize: "0.88rem",

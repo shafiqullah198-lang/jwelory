@@ -144,16 +144,22 @@ def profile_view(request):
         except json.JSONDecodeError:
             return JsonResponse({'success': False, 'errors': {'detail': 'Invalid JSON'}}, status=400)
 
-        request.user.first_name = data.get('first_name', request.user.first_name)
-        request.user.last_name = data.get('last_name', request.user.last_name)
-        request.user.email = data.get('email', request.user.email)
+        email = data.get('email', request.user.email).strip()
+        if not email:
+            return JsonResponse({'success': False, 'message': 'Email is required.'}, status=400)
+        if User.objects.filter(email__iexact=email).exclude(pk=request.user.pk).exists():
+            return JsonResponse({'success': False, 'message': 'This email is already registered.'}, status=400)
+
+        request.user.first_name = data.get('first_name', request.user.first_name).strip()
+        request.user.last_name = data.get('last_name', request.user.last_name).strip()
+        request.user.email = email
         request.user.save()
 
-        profile.phone = data.get('phone', profile.phone)
-        profile.address = data.get('address', profile.address)
-        profile.city = data.get('city', profile.city)
-        profile.state = data.get('state', profile.state)
-        profile.pincode = data.get('pincode', profile.pincode)
+        profile.phone = data.get('phone', profile.phone).strip()
+        profile.address = data.get('address', profile.address).strip()
+        profile.city = data.get('city', profile.city).strip()
+        profile.state = data.get('state', profile.state).strip()
+        profile.pincode = data.get('pincode', profile.pincode).strip()
         profile.save()
 
         return JsonResponse({

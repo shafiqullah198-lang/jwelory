@@ -64,6 +64,8 @@ export default function Checkout({ onOrderSuccess }: CheckoutProps) {
   const [loading, setLoading] = useState(true);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const [step, setStep] = useState<1 | 2>(1);
+  const [infoSaved, setInfoSaved] = useState(false);
 
   useEffect(() => {
     async function loadCheckoutData() {
@@ -74,7 +76,7 @@ export default function Checkout({ onOrderSuccess }: CheckoutProps) {
           setSubtotal(data.cart.subtotal);
           
           if (data.prefill) {
-            setFormData({
+            const prefilled = {
               full_name: data.prefill.full_name || "",
               email: data.prefill.email || "",
               phone: data.prefill.phone || "",
@@ -83,7 +85,18 @@ export default function Checkout({ onOrderSuccess }: CheckoutProps) {
               state: data.prefill.state || "",
               pincode: data.prefill.pincode || "",
               notes: "",
-            });
+            };
+            const savedDraft = sessionStorage.getItem("stylish_fancy_checkout_draft");
+            if (savedDraft) {
+              try {
+                setFormData({ ...prefilled, ...JSON.parse(savedDraft) });
+              } catch {
+                sessionStorage.removeItem("stylish_fancy_checkout_draft");
+                setFormData(prefilled);
+              }
+            } else {
+              setFormData(prefilled);
+            }
           }
         }
       } catch (err: any) {
@@ -107,6 +120,32 @@ export default function Checkout({ onOrderSuccess }: CheckoutProps) {
     }
   };
 
+  const handleContinueToPayment = (e: React.FormEvent) => {
+    e.preventDefault();
+    const requiredFields = ["full_name", "email", "phone", "address", "city", "state"] as const;
+    const nextErrors: Record<string, string> = {};
+    requiredFields.forEach((field) => {
+      if (!formData[field].trim()) {
+        nextErrors[field] = `${field.replace("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase())} is required.`;
+      }
+    });
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      nextErrors.email = "Please enter a valid email address.";
+    }
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors);
+      setGlobalError("Please complete the required information before continuing.");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    sessionStorage.setItem("stylish_fancy_checkout_draft", JSON.stringify(formData));
+    setErrors({});
+    setGlobalError("");
+    setInfoSaved(true);
+    setStep(2);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
@@ -124,6 +163,7 @@ export default function Checkout({ onOrderSuccess }: CheckoutProps) {
       });
 
       if (data.success && data.order) {
+        sessionStorage.removeItem("stylish_fancy_checkout_draft");
         setOrderPlaced(true);
         window.scrollTo({ top: 0, behavior: "smooth" });
         await Promise.resolve(onOrderSuccess());
@@ -174,6 +214,13 @@ export default function Checkout({ onOrderSuccess }: CheckoutProps) {
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         <h1 style={{ fontFamily: "'Playfair Display', serif", color: "#F0E8D0" }} className="text-3xl font-extrabold mb-10">Checkout</h1>
 
+        <div className="flex items-center gap-3 mb-8 text-xs uppercase tracking-wider">
+          <span className="px-4 py-2 rounded-full font-semibold" style={{ background: step === 1 ? "var(--rose-gold)" : "rgba(201,168,76,0.12)", color: step === 1 ? "#060400" : "var(--rose-gold)" }}>1. Information</span>
+          <span style={{ color: "var(--muted-foreground)" }}>→</span>
+          <span className="px-4 py-2 rounded-full font-semibold" style={{ background: step === 2 ? "var(--rose-gold)" : "rgba(201,168,76,0.12)", color: step === 2 ? "#060400" : "var(--rose-gold)" }}>2. Payment</span>
+          <span style={{ color: "var(--muted-foreground)" }}>→ Confirmation</span>
+        </div>
+
         {globalError && (
           <div
             className="flex items-center gap-2 p-4 rounded-xl text-sm mb-6"
@@ -202,6 +249,13 @@ export default function Checkout({ onOrderSuccess }: CheckoutProps) {
           </div>
         )}
 
+        {infoSaved && step === 2 && !orderPlaced && (
+          <div className="flex items-center gap-2 p-4 rounded-xl text-sm mb-6" style={{ background: "rgba(201,168,76,0.1)", border: "1px solid rgba(201,168,76,0.3)", color: "var(--rose-gold)" }}>
+            <CheckCircle2 size={18} className="shrink-0" />
+            <span>Your information has been saved. Select a payment method to place your order.</span>
+          </div>
+        )}
+
         {Object.keys(errors).length > 0 && (
           <div
             className="p-4 rounded-xl text-sm mb-6"
@@ -215,10 +269,10 @@ export default function Checkout({ onOrderSuccess }: CheckoutProps) {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <form onSubmit={step === 1 ? handleContinueToPayment : handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Shipping Address Column */}
           <div
-            className="lg:col-span-2 p-8 rounded-3xl space-y-6"
+            className={`lg:col-span-2 p-8 rounded-3xl space-y-6 ${step === 2 ? "hidden" : ""}`}
             style={{
               background: "linear-gradient(135deg, #13100A, #1A1500)",
               border: "1px solid rgba(201, 168, 76, 0.18)",
@@ -344,41 +398,6 @@ export default function Checkout({ onOrderSuccess }: CheckoutProps) {
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block text-xs uppercase tracking-wider mb-2 font-semibold" style={{ color: "var(--rose-gold)" }}>Payment Method</label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {PAYMENT_METHODS.map((method) => (
-                    <label
-                      key={method.value}
-                      className="flex items-center gap-3 px-5 py-3 rounded-full cursor-pointer transition-all border"
-                      style={{
-                        background: paymentMethod === method.value ? "rgba(201, 168, 76, 0.12)" : "rgba(255, 255, 255, 0.02)",
-                        borderColor: paymentMethod === method.value ? "var(--rose-gold)" : "rgba(201, 168, 76, 0.2)",
-                      }}
-                    >
-                      <input
-                        type="radio"
-                        name="payment_method"
-                        checked={paymentMethod === method.value}
-                        onChange={() => setPaymentMethod(method.value)}
-                        className="accent-[#C9A84C]"
-                      />
-                      <span className="text-xs font-semibold text-white">{method.label}</span>
-                    </label>
-                  ))}
-                </div>
-                <p
-                  className="mt-3 px-4 py-3 rounded-2xl text-xs leading-relaxed"
-                  style={{
-                    background: "rgba(201,168,76,0.06)",
-                    border: "1px solid rgba(201,168,76,0.16)",
-                    color: "var(--muted-foreground)",
-                  }}
-                >
-                  {PAYMENT_METHODS.find((method) => method.value === paymentMethod)?.instructions}
-                </p>
-              </div>
-
-              <div className="sm:col-span-2">
                 <label className="block text-xs uppercase tracking-wider mb-2 font-semibold" style={{ color: "var(--rose-gold)" }}>Order Notes (Optional)</label>
                 <textarea
                   name="notes"
@@ -392,6 +411,31 @@ export default function Checkout({ onOrderSuccess }: CheckoutProps) {
               </div>
             </div>
           </div>
+
+          {step === 2 && (
+            <div className="lg:col-span-2 p-8 rounded-3xl space-y-6" style={{ background: "linear-gradient(135deg, #13100A, #1A1500)", border: "1px solid rgba(201,168,76,0.18)", boxShadow: "0 10px 30px rgba(0,0,0,0.4)" }}>
+              <div className="flex items-center justify-between gap-4 border-b pb-4" style={{ borderColor: "rgba(201,168,76,0.12)" }}>
+                <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: "var(--rose-gold)" }}><CreditCard size={18} /> Payment Method</h2>
+                <button type="button" onClick={() => setStep(1)} className="text-xs font-semibold" style={{ color: "var(--rose-gold)" }}>Edit Information</button>
+              </div>
+              <div className="p-4 rounded-2xl text-sm leading-relaxed" style={{ background: "rgba(201,168,76,0.05)", border: "1px solid rgba(201,168,76,0.12)", color: "var(--muted-foreground)" }}>
+                <strong style={{ color: "var(--foreground)" }}>{formData.full_name}</strong><br />
+                {formData.address}, {formData.city}, {formData.state} {formData.pincode}<br />
+                {formData.email} · {formData.phone}
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {PAYMENT_METHODS.map((method) => (
+                  <label key={method.value} className="flex items-center gap-3 px-5 py-3 rounded-full cursor-pointer transition-all border" style={{ background: paymentMethod === method.value ? "rgba(201,168,76,0.12)" : "rgba(255,255,255,0.02)", borderColor: paymentMethod === method.value ? "var(--rose-gold)" : "rgba(201,168,76,0.2)" }}>
+                    <input type="radio" name="payment_method" checked={paymentMethod === method.value} onChange={() => setPaymentMethod(method.value)} className="accent-[#C9A84C]" />
+                    <span className="text-xs font-semibold" style={{ color: "var(--foreground)" }}>{method.label}</span>
+                  </label>
+                ))}
+              </div>
+              <p className="px-4 py-3 rounded-2xl text-xs leading-relaxed" style={{ background: "rgba(201,168,76,0.06)", border: "1px solid rgba(201,168,76,0.16)", color: "var(--muted-foreground)" }}>
+                {PAYMENT_METHODS.find((method) => method.value === paymentMethod)?.instructions}
+              </p>
+            </div>
+          )}
 
           {/* Checkout Review Column */}
           <div className="space-y-6">
@@ -453,16 +497,19 @@ export default function Checkout({ onOrderSuccess }: CheckoutProps) {
               <button
                 type="submit"
                 disabled={submitLoading || orderPlaced}
-                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full text-white font-medium transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg text-sm"
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full font-semibold transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg text-sm"
                 style={{
                   background: PRIMARY_CTA_BACKGROUND,
+                  color: "var(--primary-foreground)",
                   cursor: submitLoading || orderPlaced ? "not-allowed" : "pointer",
                   opacity: submitLoading || orderPlaced ? 0.7 : 1,
                 }}
               >
                 <CreditCard size={16} />
                 <span>
-                  {submitLoading
+                  {step === 1
+                    ? "Continue to Payment"
+                    : submitLoading
                     ? "Processing Order..."
                     : `Place ${PAYMENT_METHODS.find((method) => method.value === paymentMethod)?.label} Order`}
                 </span>

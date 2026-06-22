@@ -47,8 +47,18 @@ export default function Profile() {
     setError("");
     setLoading(true);
     try {
-      await updateProfile(formData);
-      setMessage("Profile updated successfully!");
+      const updatedUser = await updateProfile(formData);
+      setFormData({
+        first_name: updatedUser.first_name || "",
+        last_name: updatedUser.last_name || "",
+        email: updatedUser.email || "",
+        phone: updatedUser.profile?.phone || "",
+        address: updatedUser.profile?.address || "",
+        city: updatedUser.profile?.city || "",
+        state: updatedUser.profile?.state || "",
+        pincode: updatedUser.profile?.pincode || "",
+      });
+      setMessage("Profile updated successfully. Your account and delivery information has been saved.");
       if (nextPage?.startsWith("/")) {
         window.setTimeout(() => navigate(nextPage), 650);
       } else {
@@ -160,6 +170,14 @@ export default function Profile() {
                 <div className="flex items-center gap-3">
                   <Phone size={16} style={{ color: "var(--rose-gold)" }} />
                   <span className="text-sm" style={{ color: "var(--foreground)" }}>{user.profile.phone}</span>
+                </div>
+              )}
+              {(user.profile?.address || user.profile?.city || user.profile?.state) && (
+                <div className="flex items-start gap-3">
+                  <MapPin size={16} className="shrink-0 mt-0.5" style={{ color: "var(--rose-gold)" }} />
+                  <span className="text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
+                    {[user.profile?.address, user.profile?.city, user.profile?.state, user.profile?.pincode].filter(Boolean).join(", ")}
+                  </span>
                 </div>
               )}
             </div>
@@ -310,9 +328,10 @@ export default function Profile() {
               <button
                 type="submit"
                 disabled={loading}
-                className="px-8 py-3 rounded-full text-white font-medium focus:outline-none transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+                className="px-8 py-3 rounded-full font-semibold focus:outline-none transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
                 style={{
-                  background: "linear-gradient(135deg, #E0C87A, #C9A84C)",
+                  background: "var(--primary-cta-background)",
+                  color: "var(--primary-foreground)",
                   fontFamily: "'DM Sans', sans-serif",
                   cursor: loading ? "not-allowed" : "pointer",
                   opacity: loading ? 0.7 : 1,

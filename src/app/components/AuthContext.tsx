@@ -97,6 +97,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
     if (data.success) {
       setUser(data.user);
+      const refreshed = await apiFetch("auth/me/");
+      if (refreshed?.authenticated) {
+        setUser(refreshed.user);
+        return refreshed.user;
+      }
       return data.user;
     }
     throw new Error(data.message || "Failed to update profile");

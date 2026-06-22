@@ -1,15 +1,10 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router";
 import { motion } from "motion/react";
-import { Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import {
   BRAND_NAME,
   BUSINESS_EMAIL,
-  BUSINESS_LOCATION,
-  BUSINESS_PHONE,
-  BUSINESS_WHATSAPP,
 } from "../components/BrandLogo";
-import { PRIMARY_CTA_BACKGROUND } from "../utils";
 
 /* ────────── shared styles ────────── */
 const eyebrow: React.CSSProperties = {
@@ -265,45 +260,6 @@ export default function InfoPage() {
           ))}
         </div>
 
-        {pathname === "/about" && (
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, delay: 0.42, ease: "easeOut" }}
-            className="mt-10"
-            style={cardStyle}
-          >
-            <p style={eyebrow}>Contact Us</p>
-            <h2 className="mt-3" style={heading}>We’re Here to Help</h2>
-            <p className="mt-3" style={body}>
-              Questions about an order, product, or styling? Reach out and our team will be happy to assist.
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-7">
-              <a href={`mailto:${BUSINESS_EMAIL}`} className="flex items-start gap-3 p-4 rounded-2xl" style={{ background: "rgba(201,168,76,0.06)", border: "1px solid rgba(201,168,76,0.14)", color: "inherit", textDecoration: "none" }}>
-                <Mail size={18} style={{ color: "var(--rose-gold)", marginTop: 2 }} />
-                <span><strong style={{ display: "block", color: "var(--foreground)", fontSize: "0.8rem" }}>Email</strong><span style={{ ...body, fontSize: "0.78rem" }}>{BUSINESS_EMAIL}</span></span>
-              </a>
-              <a href={`https://wa.me/${BUSINESS_WHATSAPP}`} className="flex items-start gap-3 p-4 rounded-2xl" style={{ background: "rgba(201,168,76,0.06)", border: "1px solid rgba(201,168,76,0.14)", color: "inherit", textDecoration: "none" }}>
-                <Phone size={18} style={{ color: "var(--rose-gold)", marginTop: 2 }} />
-                <span><strong style={{ display: "block", color: "var(--foreground)", fontSize: "0.8rem" }}>Phone / WhatsApp</strong><span style={{ ...body, fontSize: "0.78rem" }}>{BUSINESS_PHONE}</span></span>
-              </a>
-              <div className="flex items-start gap-3 p-4 rounded-2xl" style={{ background: "rgba(201,168,76,0.06)", border: "1px solid rgba(201,168,76,0.14)" }}>
-                <MapPin size={18} style={{ color: "var(--rose-gold)", marginTop: 2 }} />
-                <span><strong style={{ display: "block", color: "var(--foreground)", fontSize: "0.8rem" }}>Location</strong><span style={{ ...body, fontSize: "0.78rem" }}>{BUSINESS_LOCATION}</span></span>
-              </div>
-            </div>
-
-            <a
-              href={`https://wa.me/${BUSINESS_WHATSAPP}`}
-              className="inline-flex items-center justify-center gap-2 mt-7 px-7 py-3 rounded-full font-medium"
-              style={{ background: PRIMARY_CTA_BACKGROUND, color: "#060400", textDecoration: "none" }}
-            >
-              <MessageCircle size={16} />
-              Contact Us
-            </a>
-          </motion.section>
-        )}
       </div>
     </div>
   );

@@ -229,8 +229,8 @@ export default function ProductDetail({ onAddToCart, onQuickView }: ProductDetai
 
                   <button
                     onClick={handleAddToCart}
-                    className="flex-1 flex items-center justify-center gap-2 px-8 py-3.5 rounded-full text-white font-medium transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
-                    style={{ background: "var(--primary-cta-background)" }}
+                    className="flex-1 flex items-center justify-center gap-2 px-8 py-3.5 rounded-full font-semibold transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+                    style={{ background: "var(--primary-cta-background)", color: "var(--primary-foreground)" }}
                   >
                     <ShoppingBag size={18} />
                     <span>{added ? "Added ✓" : "Add to Cart"}</span>

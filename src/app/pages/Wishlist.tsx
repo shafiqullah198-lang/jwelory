@@ -140,6 +140,7 @@ export default function WishlistPage({ items, onRemove, onAddToCart }: WishlistP
                       className="mt-3 w-full flex items-center justify-center gap-2 py-2 rounded-full text-xs font-semibold text-black transition-all duration-300 hover:shadow-md"
                       style={{
                         background: "var(--primary-cta-background)",
+                        color: "var(--primary-foreground)",
                         cursor: "pointer",
                       }}
                     >

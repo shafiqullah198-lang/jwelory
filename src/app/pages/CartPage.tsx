@@ -47,8 +47,8 @@ export default function CartPage({ items, subtotal, total, onRemove, onUpdateQty
             <p className="text-sm mb-6" style={{ color: "var(--muted-foreground)" }}>Add items to your cart to see them here.</p>
             <Link
               to="/products"
-              className="inline-block px-8 py-3 rounded-full text-white font-medium"
-              style={{ background: "var(--primary-cta-background)" }}
+              className="inline-block px-8 py-3 rounded-full font-semibold"
+              style={{ background: "var(--primary-cta-background)", color: "var(--primary-foreground)" }}
             >
               Shop Jewelry
             </Link>
@@ -155,8 +155,8 @@ export default function CartPage({ items, subtotal, total, onRemove, onUpdateQty
 
               <Link
                 to="/checkout"
-                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full text-white font-medium transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg text-sm"
-                style={{ background: "var(--primary-cta-background)" }}
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full font-semibold transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg text-sm"
+                style={{ background: "var(--primary-cta-background)", color: "var(--primary-foreground)" }}
               >
                 <span>Proceed to Checkout</span>
                 <ArrowRight size={16} />

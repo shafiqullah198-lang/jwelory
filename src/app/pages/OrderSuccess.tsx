@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { formatCurrency } from "../utils";
 import { useParams, Link } from "react-router";
-import { CheckCircle2, ShoppingBag, ClipboardList, Printer, Loader2 } from "lucide-react";
+import { CheckCircle2, ShoppingBag, ClipboardList, Printer, Loader2, MessageCircle } from "lucide-react";
 import { apiFetch } from "../api";
 import { BRAND_NAME } from "../components/BrandLogo";
 
@@ -174,9 +174,10 @@ export default function OrderSuccess() {
             </button>
             <Link
               to="/products"
-              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-white font-medium transition-all hover:opacity-90"
+              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full font-semibold transition-all hover:opacity-90"
               style={{
-                background: "linear-gradient(135deg, #E0C87A, #C9A84C)",
+                background: "var(--primary-cta-background)",
+                color: "var(--primary-foreground)",
                 fontFamily: "'DM Sans', sans-serif",
               }}
             >
@@ -184,6 +185,9 @@ export default function OrderSuccess() {
               <span>Continue Shopping</span>
             </Link>
           </div>
+          <Link to="/contact" className="inline-flex items-center justify-center gap-2 text-sm font-medium" style={{ color: "var(--rose-gold)" }}>
+            <MessageCircle size={15} /> Need help? Contact Us
+          </Link>
         </div>
 
         {/* Invoice Card */}

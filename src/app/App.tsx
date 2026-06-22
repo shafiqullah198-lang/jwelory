@@ -28,6 +28,7 @@ import Profile from "./pages/Profile";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import InfoPage from "./pages/InfoPage";
+import Contact from "./pages/Contact";
 
 import { apiFetch } from "./api";
 import { BRAND_NAME } from "./components/BrandLogo";
@@ -271,6 +272,7 @@ export function AppContent() {
           ].map((path) => (
             <Route key={path} path={path} element={<InfoPage />} />
           ))}
+          <Route path="/contact" element={<Contact />} />
           <Route
             path="/wishlist"
             element={

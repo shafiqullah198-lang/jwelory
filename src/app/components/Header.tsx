@@ -128,14 +128,6 @@ export function Header({ cartCount, wishlistCount, onCartClick, onWishlistClick 
 
   return (
     <>
-      {/* Announcement Bar */}
-      <div
-        className="w-full text-center py-2 text-xs tracking-widest uppercase"
-        style={{ background: "#060400", color: "rgba(201,168,76,0.85)", fontFamily: "'DM Sans', sans-serif", borderBottom: "1px solid rgba(201,168,76,0.15)" }}
-      >
-        ✦ Free shipping on orders over Rs. 5,000 | Use code LUXURY15 for 15% off ✦
-      </div>
-
       <header
         className="sticky top-0 z-50 w-full transition-all duration-500"
         style={{

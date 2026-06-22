@@ -172,6 +172,7 @@ export function QuickView({ product, onClose, onAddToCart }: QuickViewProps) {
                     className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-white transition-all duration-300"
                     style={{
                       background: added ? "#2b2b2b" : "var(--primary-cta-background)",
+                      color: added ? "var(--foreground)" : "var(--primary-foreground)",
                       fontFamily: "'DM Sans', sans-serif",
                       fontWeight: 500,
                       fontSize: "0.9rem",
