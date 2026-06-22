@@ -5,6 +5,7 @@ import {
   FeaturedCategories,
   BestSellers,
   NewArrivals,
+  LuxurySaleCollection,
   OfferBanner,
   WhyChooseUs,
   Testimonials,
@@ -81,6 +82,12 @@ export default function Home({ onAddToCart, onQuickView }: HomeProps) {
       <NewArrivals
         products={newArrivals}
         loading={loading}
+        onAddToCart={onAddToCart}
+        onQuickView={onQuickView}
+      />
+
+      {/* 4.5. Luxury Sale Collection */}
+      <LuxurySaleCollection
         onAddToCart={onAddToCart}
         onQuickView={onQuickView}
       />

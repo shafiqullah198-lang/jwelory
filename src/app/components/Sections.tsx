@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import { motion } from "motion/react";
-import { Star, ArrowRight, Shield, Truck, RefreshCw, HeadphonesIcon, Instagram, Mail, CheckCircle2 } from "lucide-react";
+import { Star, ArrowRight, Shield, Truck, RefreshCw, HeadphonesIcon, Instagram, Mail, CheckCircle2, Sparkles } from "lucide-react";
 import { ProductCard, type Product } from "./ProductCard";
 import { BRAND_HASHTAG, BRAND_INSTAGRAM_HANDLE, BRAND_NAME, BrandLogo } from "./BrandLogo";
+import { apiFetch } from "../api";
 
 interface SectionsProps {
   onAddToCart: (p: Product) => void;
@@ -244,6 +245,204 @@ export function NewArrivals({ products, loading, onAddToCart, onQuickView }: Dyn
   );
 }
 
+/* ────────── LUXURY SALE COLLECTION ────────── */
+export function LuxurySaleCollection({ onAddToCart, onQuickView }: SectionsProps) {
+  const [saleProducts, setSaleProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchSaleProducts() {
+      try {
+        const res = await apiFetch("products/?filter=sale&sort=newest");
+        if (res && res.products) {
+          const mapped: Product[] = res.products
+            .filter((p: any) => {
+              // A product is on sale when sale_price exists and is lower than regular price, OR discount > 0
+              const hasSalePrice = p.salePrice != null && p.salePrice < p.price;
+              const hasDiscount = (p.discount || 0) > 0;
+              return hasSalePrice || hasDiscount;
+            })
+            .slice(0, 4) // Show only the first 4 sale products on homepage
+            .map((p: any) => ({
+              id: p.id,
+              name: p.name,
+              slug: p.slug,
+              category: p.category,
+              price: p.currentPrice,
+              originalPrice: p.price,
+              rating: p.rating,
+              reviewCount: p.reviewCount,
+              image: p.image,
+              isNew: p.isNew,
+              isTrending: p.isTrending,
+              inStock: p.inStock,
+            }));
+          setSaleProducts(mapped);
+        }
+      } catch (err) {
+        console.error("Failed to load sale products:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchSaleProducts();
+  }, []);
+
+  return (
+    <section id="luxury-sale" className="py-20 md:py-24" style={{ background: "#060400" }}>
+      <div className="max-w-7xl mx-auto px-4 md:px-8">
+        {/* Section Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          viewport={{ once: true, margin: "-80px" }}
+          className="flex items-end justify-between mb-12"
+        >
+          <div>
+            <p style={eyebrow}>
+              <Sparkles size={12} style={{ display: "inline", marginRight: 6, verticalAlign: "middle" }} />
+              Exclusive Deals
+              <Sparkles size={12} style={{ display: "inline", marginLeft: 6, verticalAlign: "middle" }} />
+            </p>
+            <h2 className="mt-2" style={heading}>Luxury Sale Collection</h2>
+            <p
+              className="mt-3"
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: "0.92rem",
+                color: "var(--muted-foreground)",
+                lineHeight: 1.65,
+                fontWeight: 300,
+                maxWidth: "520px",
+              }}
+            >
+              Exclusive jewelry pieces at special prices. Limited-time offers on our most elegant collections.
+            </p>
+          </div>
+          <Link
+            to="/products?filter=sale"
+            className="hidden md:flex items-center gap-2 transition-opacity hover:opacity-70"
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: "0.85rem",
+              color: "var(--rose-gold)",
+              fontWeight: 500,
+              textDecoration: "none",
+            }}
+          >
+            View All <ArrowRight size={16} />
+          </Link>
+        </motion.div>
+
+        {/* Content */}
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={i}
+                className="rounded-2xl overflow-hidden"
+                style={{
+                  background: "#111009",
+                  border: "1px solid rgba(201,168,76,0.14)",
+                  aspectRatio: "3/5",
+                  animation: "pulse 1.5s ease-in-out infinite",
+                }}
+              />
+            ))}
+          </div>
+        ) : saleProducts.length === 0 ? (
+          /* Empty state */
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: true }}
+            className="flex flex-col items-center justify-center py-16 px-8 rounded-3xl text-center"
+            style={{
+              background: "linear-gradient(135deg, #13100A, #1A1500)",
+              border: "1px solid rgba(201,168,76,0.18)",
+              boxShadow: "0 4px 32px rgba(0,0,0,0.4)",
+            }}
+          >
+            <div
+              className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5"
+              style={{ background: "linear-gradient(135deg, #C9A84C, #8B6914)" }}
+            >
+              <Sparkles size={26} color="#fff" />
+            </div>
+            <h3
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontSize: "1.3rem",
+                fontWeight: 600,
+                color: "var(--foreground)",
+                marginBottom: "8px",
+              }}
+            >
+              Coming Soon
+            </h3>
+            <p
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: "0.9rem",
+                color: "var(--muted-foreground)",
+                fontWeight: 300,
+                lineHeight: 1.6,
+                maxWidth: "340px",
+              }}
+            >
+              New luxury offers are coming soon.
+            </p>
+          </motion.div>
+        ) : (
+          /* Product grid */
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            {saleProducts.map((p, index) => (
+              <motion.div
+                key={p.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: index * 0.08, ease: "easeOut" }}
+                viewport={{ once: true, margin: "-40px" }}
+              >
+                <ProductCard product={p} onAddToCart={onAddToCart} onQuickView={onQuickView} />
+              </motion.div>
+            ))}
+          </div>
+        )}
+
+        {/* Mobile "View All" link */}
+        {!loading && saleProducts.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.4, delay: 0.3 }}
+            viewport={{ once: true }}
+            className="flex md:hidden justify-center mt-8"
+          >
+            <Link
+              to="/products?filter=sale"
+              className="flex items-center gap-2 px-6 py-3 rounded-full transition-all duration-300 hover:-translate-y-0.5"
+              style={{
+                background: "linear-gradient(135deg, #C9A84C, #8B6914)",
+                color: "#fff",
+                fontFamily: "'DM Sans', sans-serif",
+                fontWeight: 500,
+                fontSize: "0.85rem",
+                letterSpacing: "0.06em",
+                textDecoration: "none",
+              }}
+            >
+              View All Sale <ArrowRight size={16} />
+            </Link>
+          </motion.div>
+        )}
+      </div>
+    </section>
+  );
+}
+
 /* ────────── LIMITED OFFER BANNER ────────── */
 export function OfferBanner({ offerData }: { offerData?: any }) {
   const title = offerData?.title || "Up to 40% Off";
@@ -470,6 +669,32 @@ export function Newsletter() {
 
 /* ────────── FOOTER ────────── */
 export function Footer() {
+  const linkMap: Record<string, string> = {
+    // Shop
+    "New Arrivals": "/products?filter=new",
+    "Best Sellers": "/products?filter=featured",
+    "Earrings": "/products?category=Earrings",
+    "Necklaces": "/products?category=Necklaces",
+    "Rings": "/products?category=Rings",
+    "Bracelets": "/products?category=Bracelets",
+    // Help
+    "Shipping Info": "/shipping-info",
+    "Returns": "/returns",
+    "Size Guide": "/size-guide",
+    "Care Instructions": "/care-instructions",
+    "FAQ": "/faq",
+    // Company
+    "About Us": "/about",
+    "Our Story": "/our-story",
+    "Careers": "/careers",
+    "Press": "/press",
+    "Sustainability": "/sustainability",
+    // Bottom
+    "Privacy Policy": "/privacy-policy",
+    "Terms of Service": "/terms-of-service",
+    "Cookie Policy": "/cookie-policy",
+  };
+
   const links = {
     Shop: ["New Arrivals", "Best Sellers", "Earrings", "Necklaces", "Rings", "Bracelets"],
     Help: ["Shipping Info", "Returns", "Size Guide", "Care Instructions", "FAQ"],
@@ -508,10 +733,12 @@ export function Footer() {
               <ul className="flex flex-col gap-3">
                 {items.map((item) => (
                   <li key={item}>
-                    <a href="#" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.875rem", color: "rgba(255,255,255,0.38)", fontWeight: 300, textDecoration: "none" }}
+                    <Link
+                      to={linkMap[item] || "#"}
+                      style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.875rem", color: "rgba(255,255,255,0.38)", fontWeight: 300, textDecoration: "none" }}
                       onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.7)")}
                       onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.38)")}
-                    >{item}</a>
+                    >{item}</Link>
                   </li>
                 ))}
               </ul>
@@ -522,7 +749,11 @@ export function Footer() {
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.78rem", color: "rgba(255,255,255,0.25)" }}>© 2025 {BRAND_NAME}. All rights reserved.</p>
           <div className="flex items-center gap-5">
             {["Privacy Policy", "Terms of Service", "Cookie Policy"].map((link) => (
-              <a key={link} href="#" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.75rem", color: "rgba(255,255,255,0.25)", textDecoration: "none" }}>{link}</a>
+              <Link
+                key={link}
+                to={linkMap[link] || "#"}
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.75rem", color: "rgba(255,255,255,0.25)", textDecoration: "none" }}
+              >{link}</Link>
             ))}
           </div>
         </div>

@@ -27,6 +27,7 @@ import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
+import InfoPage from "./pages/InfoPage";
 
 import { apiFetch } from "./api";
 import { BRAND_NAME } from "./components/BrandLogo";
@@ -248,10 +249,14 @@ export function AppContent() {
             path="/sale"
             element={<Products onAddToCart={handleAddToCart} onQuickView={setQuickViewProduct} />}
           />
-          <Route
-            path="/about"
-            element={<Home onAddToCart={handleAddToCart} onQuickView={setQuickViewProduct} />}
-          />
+          {/* Info / static pages */}
+          {[
+            "/about", "/our-story", "/careers", "/press", "/sustainability",
+            "/shipping-info", "/returns", "/size-guide", "/care-instructions", "/faq",
+            "/privacy-policy", "/terms-of-service", "/cookie-policy",
+          ].map((path) => (
+            <Route key={path} path={path} element={<InfoPage />} />
+          ))}
           <Route
             path="/wishlist"
             element={
@@ -415,9 +420,18 @@ export function AdminRedirect() {
   );
 }
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [pathname]);
+  return null;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <AuthProvider>
         <AppContent />
       </AuthProvider>

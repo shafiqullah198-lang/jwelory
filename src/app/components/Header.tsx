@@ -1,10 +1,32 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router";
 import { ShoppingBag, Heart, Search, Menu, X, ChevronDown, User as UserIcon } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "./AuthContext";
 import { apiFetch } from "../api";
 import { BrandLogo } from "./BrandLogo";
+import { formatCurrency } from "../utils";
+
+export const CATEGORY_TYPOS: Record<string, string> = {
+  earing: "Earrings",
+  earings: "Earrings",
+  earring: "Earrings",
+  earrings: "Earrings",
+  necklace: "Necklaces",
+  necklaces: "Necklaces",
+  neckles: "Necklaces",
+  neckless: "Necklaces",
+  neckle: "Necklaces",
+  neckleses: "Necklaces",
+  ring: "Rings",
+  rings: "Rings",
+  bracelet: "Bracelets",
+  bracelets: "Bracelets",
+  bangle: "Bangles",
+  bangles: "Bangles",
+  set: "Sets",
+  sets: "Sets",
+};
 
 interface HeaderProps {
   cartCount: number;
@@ -29,6 +51,9 @@ export function Header({ cartCount, wishlistCount, onCartClick, onWishlistClick 
   const [searchOpen, setSearchOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [categories, setCategories] = useState<string[]>(["Earrings", "Necklaces", "Rings", "Bracelets", "Bangles", "Sets"]);
 
   useEffect(() => {
@@ -50,6 +75,55 @@ export function Header({ cartCount, wishlistCount, onCartClick, onWishlistClick 
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Live search with debounce
+  const fetchSearchResults = useCallback(async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      setSearchLoading(false);
+      return;
+    }
+    setSearchLoading(true);
+    try {
+      const trimmed = query.trim().toLowerCase();
+      let url = `products/?q=${encodeURIComponent(query.trim())}`;
+      
+      if (CATEGORY_TYPOS[trimmed]) {
+        const matchedCategory = CATEGORY_TYPOS[trimmed];
+        const categorySlug = matchedCategory === "Sets" ? "sets" : matchedCategory.toLowerCase();
+        url = `products/?category=${categorySlug}`;
+      }
+      
+      const data = await apiFetch(url);
+      if (data && data.products) {
+        setSearchResults(data.products.slice(0, 6));
+      } else {
+        setSearchResults([]);
+      }
+    } catch (err) {
+      console.error("Search failed:", err);
+      setSearchResults([]);
+    } finally {
+      setSearchLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!searchOpen) return;
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      setSearchLoading(false);
+      return;
+    }
+    setSearchLoading(true);
+    searchTimerRef.current = setTimeout(() => {
+      fetchSearchResults(searchQuery);
+    }, 300);
+    return () => {
+      if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    };
+  }, [searchQuery, searchOpen, fetchSearchResults]);
 
   return (
     <>
@@ -243,7 +317,7 @@ export function Header({ cartCount, wishlistCount, onCartClick, onWishlistClick 
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[100] flex items-start justify-center pt-24 px-4"
             style={{ background: "rgba(43,43,43,0.6)", backdropFilter: "blur(8px)" }}
-            onClick={() => setSearchOpen(false)}
+            onClick={() => { setSearchOpen(false); setSearchQuery(""); setSearchResults([]); }}
           >
             <motion.div
               initial={{ y: -20, opacity: 0 }}
@@ -252,9 +326,14 @@ export function Header({ cartCount, wishlistCount, onCartClick, onWishlistClick 
               onClick={(e) => e.stopPropagation()}
               className="w-full max-w-2xl"
             >
+              {/* Search Input */}
               <div
                 className="flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl"
-                style={{ background: "#fff", border: "2px solid var(--rose-gold)" }}
+                style={{
+                  background: "#fff",
+                  border: "2px solid var(--rose-gold)",
+                  borderRadius: searchQuery.trim() ? "1rem 1rem 0 0" : "1rem",
+                }}
               >
                 <Search size={22} style={{ color: "var(--rose-gold)" }} />
                 <input
@@ -271,14 +350,159 @@ export function Header({ cartCount, wishlistCount, onCartClick, onWishlistClick 
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && searchQuery.trim()) {
                       setSearchOpen(false);
+                      setSearchQuery("");
+                      setSearchResults([]);
                       navigate(`/products?q=${encodeURIComponent(searchQuery.trim())}`);
+                    }
+                    if (e.key === "Escape") {
+                      setSearchOpen(false);
+                      setSearchQuery("");
+                      setSearchResults([]);
                     }
                   }}
                 />
-                <button onClick={() => setSearchOpen(false)}>
+                {searchQuery && (
+                  <button
+                    onClick={() => { setSearchQuery(""); setSearchResults([]); }}
+                    className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+                  >
+                    <X size={16} style={{ color: "#999" }} />
+                  </button>
+                )}
+                <button onClick={() => { setSearchOpen(false); setSearchQuery(""); setSearchResults([]); }}>
                   <X size={20} style={{ color: "var(--muted-foreground)" }} />
                 </button>
               </div>
+
+              {/* Live Search Results Dropdown */}
+              {searchQuery.trim() && (
+                <div
+                  className="rounded-b-2xl shadow-2xl overflow-hidden"
+                  style={{
+                    background: "#fff",
+                    borderLeft: "2px solid var(--rose-gold)",
+                    borderRight: "2px solid var(--rose-gold)",
+                    borderBottom: "2px solid var(--rose-gold)",
+                    maxHeight: "420px",
+                    overflowY: "auto",
+                  }}
+                >
+                  {searchLoading ? (
+                    <div className="flex items-center justify-center py-8 gap-2">
+                      <div
+                        className="w-4 h-4 rounded-full animate-spin"
+                        style={{ border: "2px solid rgba(201,168,76,0.2)", borderTopColor: "var(--rose-gold)" }}
+                      />
+                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.85rem", color: "#888" }}>
+                        Searching...
+                      </span>
+                    </div>
+                  ) : searchResults.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-10 px-4">
+                      <Search size={28} style={{ color: "rgba(201,168,76,0.4)", marginBottom: 8 }} />
+                      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem", color: "#888", textAlign: "center" }}>
+                        No jewelry found
+                      </p>
+                      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.75rem", color: "#bbb", marginTop: 4 }}>
+                        Try a different keyword or browse our collections.
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      {searchResults.map((product) => (
+                        <Link
+                          key={product.id}
+                          to={`/products/${product.slug}`}
+                          onClick={() => { setSearchOpen(false); setSearchQuery(""); setSearchResults([]); }}
+                          className="flex items-center gap-4 px-5 py-3 transition-colors hover:bg-gray-50"
+                          style={{ textDecoration: "none", borderBottom: "1px solid #f0f0f0" }}
+                        >
+                          <div
+                            className="w-12 h-12 rounded-xl overflow-hidden shrink-0"
+                            style={{ background: "#f5f5f0" }}
+                          >
+                            <img
+                              src={product.image}
+                              alt={product.name}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p
+                              className="truncate"
+                              style={{
+                                fontFamily: "'Playfair Display', serif",
+                                fontSize: "0.88rem",
+                                fontWeight: 600,
+                                color: "#1a1a1a",
+                              }}
+                            >
+                              {product.name}
+                            </p>
+                            <p
+                              style={{
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontSize: "0.7rem",
+                                color: "#999",
+                                textTransform: "uppercase",
+                                letterSpacing: "0.1em",
+                              }}
+                            >
+                              {product.category}
+                            </p>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <p
+                              style={{
+                                fontFamily: "'Playfair Display', serif",
+                                fontSize: "0.9rem",
+                                fontWeight: 700,
+                                color: "#8B6914",
+                              }}
+                            >
+                              {formatCurrency(product.currentPrice)}
+                            </p>
+                            {product.currentPrice < product.price && (
+                              <p
+                                style={{
+                                  fontFamily: "'DM Sans', sans-serif",
+                                  fontSize: "0.7rem",
+                                  color: "#bbb",
+                                  textDecoration: "line-through",
+                                }}
+                              >
+                                {formatCurrency(product.price)}
+                              </p>
+                            )}
+                          </div>
+                        </Link>
+                      ))}
+                      {/* View All Results */}
+                      <button
+                        onClick={() => {
+                          setSearchOpen(false);
+                          const q = searchQuery.trim();
+                          setSearchQuery("");
+                          setSearchResults([]);
+                          navigate(`/products?q=${encodeURIComponent(q)}`);
+                        }}
+                        className="w-full py-3 text-center transition-colors hover:bg-gray-50"
+                        style={{
+                          fontFamily: "'DM Sans', sans-serif",
+                          fontSize: "0.85rem",
+                          fontWeight: 600,
+                          color: "#8B6914",
+                          background: "none",
+                          border: "none",
+                          cursor: "pointer",
+                        }}
+                      >
+                        View all results →
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
             </motion.div>
           </motion.div>
         )}

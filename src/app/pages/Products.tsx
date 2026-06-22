@@ -4,6 +4,7 @@ import { SlidersHorizontal, ChevronDown, Search, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { ProductCard, type Product } from "../components/ProductCard";
 import { useSearchParams, useParams, useLocation } from "react-router";
+import { CATEGORY_TYPOS } from "../components/Header";
 
 const SORT_OPTIONS = [
   { label: "Featured", value: "featured" },
@@ -68,10 +69,17 @@ export default function Products({ onAddToCart, onQuickView }: ProductsProps) {
     const query = searchParams.get("q") || "";
     const filter = searchParams.get("filter") || "";
 
-    setActiveCategory(category);
+    const lowerQ = query.trim().toLowerCase();
+    if (lowerQ && CATEGORY_TYPOS[lowerQ]) {
+      setActiveCategory(CATEGORY_TYPOS[lowerQ]);
+      setSearchQuery("");
+      setDebouncedSearch("");
+    } else {
+      setActiveCategory(category);
+      setSearchQuery(query);
+      setDebouncedSearch(query);
+    }
     setSortBy(sort);
-    setSearchQuery(query);
-    setDebouncedSearch(query);
     setActiveFilter(filter);
   }, [searchParams]);
 

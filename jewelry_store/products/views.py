@@ -33,12 +33,29 @@ def product_list(request):
         products = products.filter(sale_price__isnull=False, sale_price__gt=0)
 
     # Search
-    search_query = request.GET.get('q', '')
+    search_query = request.GET.get('q', '').strip()
     if search_query:
+        # Handle spelling/category matches (case-insensitive)
+        normalized = search_query.lower()
+        extra_filters = Q()
+        if normalized in ['earing', 'earings', 'earring', 'earrings']:
+            extra_filters |= Q(category__name__iexact='Earrings')
+        elif normalized in ['neckl', 'necklace', 'necklaces', 'neckles', 'neckless', 'neckle', 'neckleses']:
+            extra_filters |= Q(category__name__iexact='Necklaces')
+        elif normalized in ['ring', 'rings']:
+            extra_filters |= Q(category__name__iexact='Rings')
+        elif normalized in ['bracelet', 'bracelets']:
+            extra_filters |= Q(category__name__iexact='Bracelets')
+        elif normalized in ['bangle', 'bangles']:
+            extra_filters |= Q(category__name__iexact='Bangles')
+        elif normalized in ['set', 'sets']:
+            extra_filters |= Q(category__name__iexact='Sets')
+
         products = products.filter(
             Q(name__icontains=search_query) |
             Q(description__icontains=search_query) |
-            Q(category__name__icontains=search_query)
+            Q(category__name__icontains=search_query) |
+            extra_filters
         )
 
     # Sort

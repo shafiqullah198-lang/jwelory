@@ -2,7 +2,7 @@ import { useState } from "react";
 
 export const BRAND_NAME = "STYLISH FANCY JEWELRY";
 export const BRAND_TAGLINE = "Luxury Jewelry";
-export const BRAND_LOGO_PATH = "/logo.svg";
+export const BRAND_LOGO_PATH = "/logo.png";
 export const BRAND_INSTAGRAM_HANDLE = "@stylishfancyjewelry";
 export const BRAND_HASHTAG = "#StylishFancyJewelry";
 
