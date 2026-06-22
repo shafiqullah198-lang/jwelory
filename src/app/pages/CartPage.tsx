@@ -2,6 +2,7 @@ import React from "react";
 import { formatCurrency } from "../utils";
 import { Link } from "react-router";
 import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, Package } from "lucide-react";
+import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 
 interface CartItem {
   id: number;
@@ -47,7 +48,7 @@ export default function CartPage({ items, subtotal, total, onRemove, onUpdateQty
             <Link
               to="/products"
               className="inline-block px-8 py-3 rounded-full text-white font-medium"
-              style={{ background: "linear-gradient(135deg, #E0C87A, #C9A84C)" }}
+              style={{ background: "var(--primary-cta-background)" }}
             >
               Shop Jewelry
             </Link>
@@ -67,7 +68,7 @@ export default function CartPage({ items, subtotal, total, onRemove, onUpdateQty
                 >
                   <div className="flex items-center gap-4">
                     {item.image ? (
-                      <img
+                      <ImageWithFallback
                         src={item.image}
                         alt={item.name}
                         className="w-20 h-20 object-cover rounded-2xl shrink-0"
@@ -139,7 +140,7 @@ export default function CartPage({ items, subtotal, total, onRemove, onUpdateQty
                 </div>
                 <div className="flex justify-between" style={{ color: "var(--muted-foreground)" }}>
                   <span>Shipping:</span>
-                  <span style={{ color: "var(--foreground)" }}>{shippingCost === 0 ? "FREE" : `{formatCurrency(shippingCost)}`}</span>
+                  <span style={{ color: "var(--foreground)" }}>{shippingCost === 0 ? "FREE" : formatCurrency(shippingCost)}</span>
                 </div>
                 {shippingCost > 0 && (
                   <p className="text-[10px]" style={{ color: "var(--rose-gold)" }}>
@@ -155,7 +156,7 @@ export default function CartPage({ items, subtotal, total, onRemove, onUpdateQty
               <Link
                 to="/checkout"
                 className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full text-white font-medium transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg text-sm"
-                style={{ background: "linear-gradient(135deg, #E0C87A, #C9A84C)" }}
+                style={{ background: "var(--primary-cta-background)" }}
               >
                 <span>Proceed to Checkout</span>
                 <ArrowRight size={16} />

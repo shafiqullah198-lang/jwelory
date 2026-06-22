@@ -31,6 +31,31 @@ function normalizeBaseUrl(baseUrl: string): string {
 }
 
 const apiBaseUrl = normalizeBaseUrl(rawApiBaseUrl);
+const apiOrigin = rawApiBaseUrl ? new URL(rawApiBaseUrl, window.location.origin).origin : window.location.origin;
+
+export function resolveMediaUrl(url: string | null | undefined): string {
+  if (!url) return "";
+  const trimmed = url.trim();
+  if (!trimmed || trimmed.startsWith("data:") || trimmed.startsWith("blob:")) {
+    return trimmed;
+  }
+  if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith("//")) {
+    return trimmed;
+  }
+  return new URL(trimmed, `${apiOrigin}/`).toString();
+}
+
+export class ApiError extends Error {
+  data: any;
+  status: number;
+
+  constructor(message: string, data: any, status: number) {
+    super(message);
+    this.name = "ApiError";
+    this.data = data;
+    this.status = status;
+  }
+}
 
 function buildApiUrl(endpoint: string): string {
   if (endpoint.startsWith("http")) {
@@ -77,7 +102,14 @@ export async function apiFetch(
     } catch {
       errorData = { message: "An unexpected error occurred" };
     }
-    throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    const validationMessage = errorData.errors
+      ? Object.values(errorData.errors).join(" ")
+      : "";
+    throw new ApiError(
+      errorData.message || validationMessage || `HTTP error! status: ${response.status}`,
+      errorData,
+      response.status
+    );
   }
 
   // For logout or clean delete responses, it might be 204 or empty

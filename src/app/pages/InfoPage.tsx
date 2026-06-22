@@ -1,7 +1,15 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router";
 import { motion } from "motion/react";
-import { BRAND_NAME } from "../components/BrandLogo";
+import { Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import {
+  BRAND_NAME,
+  BUSINESS_EMAIL,
+  BUSINESS_LOCATION,
+  BUSINESS_PHONE,
+  BUSINESS_WHATSAPP,
+} from "../components/BrandLogo";
+import { PRIMARY_CTA_BACKGROUND } from "../utils";
 
 /* ────────── shared styles ────────── */
 const eyebrow: React.CSSProperties = {
@@ -139,7 +147,7 @@ const pages: Record<string, PageData> = {
     subtitle: `Be part of the ${BRAND_NAME} family. We're always looking for passionate individuals who share our love for beautiful jewelry.`,
     sections: [
       { title: "Why Work With Us", content: "At STYLISH FANCY JEWELRY, you'll join a creative, fast-paced team that values innovation, collaboration, and a passion for excellence. We offer competitive salaries, growth opportunities, and a supportive work environment." },
-      { title: "Current Openings", content: "We're currently looking for talented individuals in design, marketing, customer support, and operations. Send your resume and portfolio to careers@stylishfancyjewelry.com." },
+      { title: "Current Openings", content: `We're currently looking for talented individuals in design, marketing, customer support, and operations. Send your resume and portfolio to ${BUSINESS_EMAIL}.` },
       { title: "Internships", content: "We offer internship programs for students and recent graduates in fashion design, digital marketing, and e-commerce. Gain hands-on experience in the luxury jewelry industry." },
     ],
   },
@@ -148,7 +156,7 @@ const pages: Record<string, PageData> = {
     title: "Press & Media",
     subtitle: `Stay up to date with the latest news and features about ${BRAND_NAME}.`,
     sections: [
-      { title: "Media Inquiries", content: "For press inquiries, collaborations, or media features, please reach out to our PR team at press@stylishfancyjewelry.com. We're happy to provide high-resolution images, product samples, and brand information." },
+      { title: "Media Inquiries", content: `For press inquiries, collaborations, or media features, please reach out to our team at ${BUSINESS_EMAIL}. We're happy to provide high-resolution images, product samples, and brand information.` },
       { title: "Brand Assets", content: "Need our logo, product photography, or brand guidelines? Contact our media team and we'll provide a complete press kit tailored to your needs." },
       { title: "Collaborations", content: "We love working with influencers, bloggers, stylists, and media partners who share our passion for fashion and jewelry. Let's create something beautiful together." },
     ],
@@ -171,7 +179,7 @@ const pages: Record<string, PageData> = {
       { title: "Information We Collect", content: "We collect personal information you provide when creating an account, placing an order, or subscribing to our newsletter. This includes your name, email address, shipping address, and payment details." },
       { title: "How We Use Your Data", content: "Your information is used to process orders, deliver products, improve our services, and send you relevant marketing communications (with your consent). We never sell your personal data to third parties." },
       { title: "Data Security", content: "We implement industry-standard security measures including SSL encryption, secure payment processing, and regular security audits to protect your personal information." },
-      { title: "Your Rights", content: "You have the right to access, correct, or delete your personal data at any time. Contact us at privacy@stylishfancyjewelry.com for any privacy-related requests." },
+      { title: "Your Rights", content: `You have the right to access, correct, or delete your personal data at any time. Contact us at ${BUSINESS_EMAIL} for any privacy-related requests.` },
     ],
   },
   "/terms-of-service": {
@@ -193,7 +201,7 @@ const pages: Record<string, PageData> = {
       { title: "What Are Cookies?", content: "Cookies are small text files stored on your device when you visit our website. They help us provide a better browsing experience by remembering your preferences, login status, and shopping cart contents." },
       { title: "Types of Cookies We Use", content: "Essential cookies: Required for website functionality (cart, checkout, login). Analytics cookies: Help us understand how visitors use our site. Marketing cookies: Used to deliver relevant advertisements and offers." },
       { title: "Managing Cookies", content: "You can control cookies through your browser settings. Disabling essential cookies may affect website functionality. Most browsers allow you to block or delete cookies." },
-      { title: "Contact Us", content: "If you have questions about our cookie practices, please contact us at privacy@stylishfancyjewelry.com." },
+      { title: "Contact Us", content: `If you have questions about our cookie practices, please contact us at ${BUSINESS_EMAIL}.` },
     ],
   },
 };
@@ -256,6 +264,46 @@ export default function InfoPage() {
             </motion.div>
           ))}
         </div>
+
+        {pathname === "/about" && (
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 0.42, ease: "easeOut" }}
+            className="mt-10"
+            style={cardStyle}
+          >
+            <p style={eyebrow}>Contact Us</p>
+            <h2 className="mt-3" style={heading}>We’re Here to Help</h2>
+            <p className="mt-3" style={body}>
+              Questions about an order, product, or styling? Reach out and our team will be happy to assist.
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-7">
+              <a href={`mailto:${BUSINESS_EMAIL}`} className="flex items-start gap-3 p-4 rounded-2xl" style={{ background: "rgba(201,168,76,0.06)", border: "1px solid rgba(201,168,76,0.14)", color: "inherit", textDecoration: "none" }}>
+                <Mail size={18} style={{ color: "var(--rose-gold)", marginTop: 2 }} />
+                <span><strong style={{ display: "block", color: "var(--foreground)", fontSize: "0.8rem" }}>Email</strong><span style={{ ...body, fontSize: "0.78rem" }}>{BUSINESS_EMAIL}</span></span>
+              </a>
+              <a href={`https://wa.me/${BUSINESS_WHATSAPP}`} className="flex items-start gap-3 p-4 rounded-2xl" style={{ background: "rgba(201,168,76,0.06)", border: "1px solid rgba(201,168,76,0.14)", color: "inherit", textDecoration: "none" }}>
+                <Phone size={18} style={{ color: "var(--rose-gold)", marginTop: 2 }} />
+                <span><strong style={{ display: "block", color: "var(--foreground)", fontSize: "0.8rem" }}>Phone / WhatsApp</strong><span style={{ ...body, fontSize: "0.78rem" }}>{BUSINESS_PHONE}</span></span>
+              </a>
+              <div className="flex items-start gap-3 p-4 rounded-2xl" style={{ background: "rgba(201,168,76,0.06)", border: "1px solid rgba(201,168,76,0.14)" }}>
+                <MapPin size={18} style={{ color: "var(--rose-gold)", marginTop: 2 }} />
+                <span><strong style={{ display: "block", color: "var(--foreground)", fontSize: "0.8rem" }}>Location</strong><span style={{ ...body, fontSize: "0.78rem" }}>{BUSINESS_LOCATION}</span></span>
+              </div>
+            </div>
+
+            <a
+              href={`https://wa.me/${BUSINESS_WHATSAPP}`}
+              className="inline-flex items-center justify-center gap-2 mt-7 px-7 py-3 rounded-full font-medium"
+              style={{ background: PRIMARY_CTA_BACKGROUND, color: "#060400", textDecoration: "none" }}
+            >
+              <MessageCircle size={16} />
+              Contact Us
+            </a>
+          </motion.section>
+        )}
       </div>
     </div>
   );

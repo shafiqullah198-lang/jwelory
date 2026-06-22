@@ -9,6 +9,7 @@
   --popover: #141200;
   --popover-foreground: #F0E8D0;
   --primary: #C9A84C;
+  --primary-cta-background: linear-gradient(135deg, #E0C87A 0%, #C9A84C 100%);
   --primary-foreground: #060400;
   --secondary: #1A1500;
   --secondary-foreground: #F0E8D0;

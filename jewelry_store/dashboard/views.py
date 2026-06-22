@@ -56,6 +56,8 @@ def _serialize_order(order):
         'status': order.status,
         'status_display': order.get_status_display(),
         'status_color': order.status_color,
+        'payment_method': order.payment_method,
+        'payment_method_display': order.get_payment_method_display(),
         'full_name': order.full_name,
         'email': order.email,
         'phone': order.phone,

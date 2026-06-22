@@ -12,10 +12,21 @@ class Order(models.Model):
         ('delivered', 'Delivered'),
         ('cancelled', 'Cancelled'),
     ]
+    PAYMENT_METHOD_CHOICES = [
+        ('cod', 'Cash on Delivery'),
+        ('bank', 'Bank Transfer'),
+        ('jazzcash', 'JazzCash'),
+        ('easypaisa', 'Easypaisa'),
+    ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
     order_number = models.CharField(max_length=20, unique=True, editable=False)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    payment_method = models.CharField(
+        max_length=20,
+        choices=PAYMENT_METHOD_CHOICES,
+        default='cod',
+    )
     full_name = models.CharField(max_length=200)
     email = models.EmailField()
     phone = models.CharField(max_length=15)

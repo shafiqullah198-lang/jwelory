@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../components/AuthContext";
-import { Link } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { User, Phone, MapPin, Mail, ClipboardList, CheckCircle2, AlertCircle } from "lucide-react";
 
 export default function Profile() {
   const { user, updateProfile } = useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const nextPage = searchParams.get("next");
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
@@ -46,7 +49,11 @@ export default function Profile() {
     try {
       await updateProfile(formData);
       setMessage("Profile updated successfully!");
-      setTimeout(() => setMessage(""), 3000);
+      if (nextPage?.startsWith("/")) {
+        window.setTimeout(() => navigate(nextPage), 650);
+      } else {
+        setTimeout(() => setMessage(""), 3000);
+      }
     } catch (err: any) {
       setError(err.message || "Failed to update profile.");
     } finally {

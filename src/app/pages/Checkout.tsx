@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { formatCurrency } from "../utils";
+import { formatCurrency, PRIMARY_CTA_BACKGROUND } from "../utils";
 import { apiFetch } from "../api";
 import { useNavigate, Link } from "react-router";
-import { CreditCard, ShoppingBag, MapPin, Loader2, AlertCircle } from "lucide-react";
+import { CreditCard, ShoppingBag, MapPin, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 
 interface CheckoutItem {
   id: number;
@@ -18,11 +19,34 @@ interface CheckoutProps {
   onOrderSuccess: () => void; // Callback to reset cart state on App
 }
 
+const PAYMENT_METHODS = [
+  {
+    value: "cod",
+    label: "Cash on Delivery",
+    instructions: "Pay the courier in cash when your order is delivered.",
+  },
+  {
+    value: "bank",
+    label: "Bank Transfer",
+    instructions: "Place the order first. Bank account details and your payment reference will be provided with the confirmation.",
+  },
+  {
+    value: "jazzcash",
+    label: "JazzCash",
+    instructions: "Place the order first, then send the total through JazzCash using the payment details in your confirmation.",
+  },
+  {
+    value: "easypaisa",
+    label: "Easypaisa",
+    instructions: "Place the order first, then send the total through Easypaisa using the payment details in your confirmation.",
+  },
+];
+
 export default function Checkout({ onOrderSuccess }: CheckoutProps) {
   const navigate = useNavigate();
   const [items, setItems] = useState<CheckoutItem[]>([]);
   const [subtotal, setSubtotal] = useState(0);
-  const [paymentMethod, setPaymentMethod] = useState("Cash on Delivery");
+  const [paymentMethod, setPaymentMethod] = useState("cod");
   
   const [formData, setFormData] = useState({
     full_name: "",
@@ -39,6 +63,7 @@ export default function Checkout({ onOrderSuccess }: CheckoutProps) {
   const [globalError, setGlobalError] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [orderPlaced, setOrderPlaced] = useState(false);
 
   useEffect(() => {
     async function loadCheckoutData() {
@@ -91,7 +116,7 @@ export default function Checkout({ onOrderSuccess }: CheckoutProps) {
     try {
       const payload = {
         ...formData,
-        notes: `[Payment Method: ${paymentMethod}] ${formData.notes}`.trim()
+        payment_method: paymentMethod,
       };
       const data = await apiFetch("orders/checkout/", {
         method: "POST",
@@ -99,12 +124,19 @@ export default function Checkout({ onOrderSuccess }: CheckoutProps) {
       });
 
       if (data.success && data.order) {
-        onOrderSuccess(); // Reset client side cart counts
-        navigate(`/order-success/${data.order.order_number}`);
+        setOrderPlaced(true);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        await Promise.resolve(onOrderSuccess());
+        window.setTimeout(() => {
+          navigate(`/order-success/${data.order.order_number}`, { replace: true });
+        }, 650);
       } else {
         setGlobalError(data.message || "Checkout failed. Please check inputs.");
       }
     } catch (err: any) {
+      if (err.data?.errors) {
+        setErrors(err.data.errors);
+      }
       if (err.message) {
         setGlobalError(err.message);
       } else {
@@ -153,6 +185,33 @@ export default function Checkout({ onOrderSuccess }: CheckoutProps) {
           >
             <AlertCircle size={18} className="shrink-0" />
             <span>{globalError}</span>
+          </div>
+        )}
+
+        {orderPlaced && (
+          <div
+            className="flex items-center gap-2 p-4 rounded-xl text-sm mb-6"
+            style={{
+              background: "rgba(201, 168, 76, 0.1)",
+              border: "1px solid rgba(201, 168, 76, 0.3)",
+              color: "var(--rose-gold)",
+            }}
+          >
+            <CheckCircle2 size={18} className="shrink-0" />
+            <span>Information saved and order placed successfully. Opening your invoice…</span>
+          </div>
+        )}
+
+        {Object.keys(errors).length > 0 && (
+          <div
+            className="p-4 rounded-xl text-sm mb-6"
+            style={{
+              background: "rgba(212, 24, 61, 0.1)",
+              border: "1px solid rgba(212, 24, 61, 0.3)",
+              color: "var(--destructive)",
+            }}
+          >
+            {Object.values(errors).map((message) => <p key={message}>{message}</p>)}
           </div>
         )}
 
@@ -287,26 +346,36 @@ export default function Checkout({ onOrderSuccess }: CheckoutProps) {
               <div className="sm:col-span-2">
                 <label className="block text-xs uppercase tracking-wider mb-2 font-semibold" style={{ color: "var(--rose-gold)" }}>Payment Method</label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {["Cash on Delivery", "Bank Transfer", "JazzCash", "Easypaisa"].map((method) => (
+                  {PAYMENT_METHODS.map((method) => (
                     <label
-                      key={method}
+                      key={method.value}
                       className="flex items-center gap-3 px-5 py-3 rounded-full cursor-pointer transition-all border"
                       style={{
-                        background: paymentMethod === method ? "rgba(201, 168, 76, 0.12)" : "rgba(255, 255, 255, 0.02)",
-                        borderColor: paymentMethod === method ? "var(--rose-gold)" : "rgba(201, 168, 76, 0.2)",
+                        background: paymentMethod === method.value ? "rgba(201, 168, 76, 0.12)" : "rgba(255, 255, 255, 0.02)",
+                        borderColor: paymentMethod === method.value ? "var(--rose-gold)" : "rgba(201, 168, 76, 0.2)",
                       }}
                     >
                       <input
                         type="radio"
                         name="payment_method"
-                        checked={paymentMethod === method}
-                        onChange={() => setPaymentMethod(method)}
+                        checked={paymentMethod === method.value}
+                        onChange={() => setPaymentMethod(method.value)}
                         className="accent-[#C9A84C]"
                       />
-                      <span className="text-xs font-semibold text-white">{method}</span>
+                      <span className="text-xs font-semibold text-white">{method.label}</span>
                     </label>
                   ))}
                 </div>
+                <p
+                  className="mt-3 px-4 py-3 rounded-2xl text-xs leading-relaxed"
+                  style={{
+                    background: "rgba(201,168,76,0.06)",
+                    border: "1px solid rgba(201,168,76,0.16)",
+                    color: "var(--muted-foreground)",
+                  }}
+                >
+                  {PAYMENT_METHODS.find((method) => method.value === paymentMethod)?.instructions}
+                </p>
               </div>
 
               <div className="sm:col-span-2">
@@ -343,7 +412,7 @@ export default function Checkout({ onOrderSuccess }: CheckoutProps) {
                   <div key={item.id} className="flex gap-3 text-xs items-center justify-between">
                     <div className="flex gap-2.5 items-center min-w-0">
                       {item.image && (
-                        <img src={item.image} alt={item.name} className="w-10 h-10 object-cover rounded-lg shrink-0" />
+                        <ImageWithFallback src={item.image} alt={item.name} className="w-10 h-10 object-cover rounded-lg shrink-0" />
                       )}
                       <div className="min-w-0">
                         <p className="font-bold truncate" style={{ color: "#F0E8D0" }}>{item.name}</p>
@@ -373,7 +442,7 @@ export default function Checkout({ onOrderSuccess }: CheckoutProps) {
                 </div>
                 <div className="flex justify-between" style={{ color: "var(--muted-foreground)" }}>
                   <span>Shipping Fee:</span>
-                  <span style={{ color: "var(--foreground)" }}>{shippingCost === 0 ? "FREE" : `{formatCurrency(shippingCost)}`}</span>
+                  <span style={{ color: "var(--foreground)" }}>{shippingCost === 0 ? "FREE" : formatCurrency(shippingCost)}</span>
                 </div>
                 <div className="border-t pt-2.5 flex justify-between font-bold text-base" style={{ color: "#F0E8D0", borderColor: "rgba(201,168,76,0.12)" }}>
                   <span>Total Due:</span>
@@ -383,16 +452,20 @@ export default function Checkout({ onOrderSuccess }: CheckoutProps) {
 
               <button
                 type="submit"
-                disabled={submitLoading}
+                disabled={submitLoading || orderPlaced}
                 className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full text-white font-medium transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg text-sm"
                 style={{
-                  background: "linear-gradient(135deg, #E0C87A, #C9A84C)",
-                  cursor: submitLoading ? "not-allowed" : "pointer",
-                  opacity: submitLoading ? 0.7 : 1,
+                  background: PRIMARY_CTA_BACKGROUND,
+                  cursor: submitLoading || orderPlaced ? "not-allowed" : "pointer",
+                  opacity: submitLoading || orderPlaced ? 0.7 : 1,
                 }}
               >
                 <CreditCard size={16} />
-                <span>{submitLoading ? "Processing Order..." : `Place ${paymentMethod} Order`}</span>
+                <span>
+                  {submitLoading
+                    ? "Processing Order..."
+                    : `Place ${PAYMENT_METHODS.find((method) => method.value === paymentMethod)?.label} Order`}
+                </span>
               </button>
               <p className="text-[10px] text-center" style={{ color: "var(--muted-foreground)" }}>
                 Order will be confirmed and processed for shipment.

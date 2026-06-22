@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from "react-router";
 import { useAuth } from "../components/AuthContext";
 import { apiFetch } from "../api";
 import { BRAND_NAME, BrandLogo } from "../components/BrandLogo";
+import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import {
   LayoutDashboard,
   Package,
@@ -29,7 +30,7 @@ import {
   CheckCircle,
   Eye,
   ShieldCheck,
-  DollarSign
+  Banknote
 } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -607,7 +608,7 @@ export default function AdminDashboard() {
               <h3 className="text-xl md:text-2xl font-semibold mt-2 text-white font-serif">{formatCurrency(stats.total_revenue)}</h3>
             </div>
             <div className="w-10 h-10 rounded-2xl bg-amber-500/5 border border-amber-500/20 flex items-center justify-center text-[#C9A84C]">
-              <DollarSign size={20} />
+              <Banknote size={20} />
             </div>
           </div>
         </div>
@@ -761,7 +762,7 @@ export default function AdminDashboard() {
                     <tr key={p.id} className="border-b border-[#C9A84C]/5 hover:bg-white/2 transition-colors">
                       <td className="py-3 px-2">
                         {p.image ? (
-                          <img src={p.image} alt={p.name} className="w-10 h-12 object-cover rounded-lg border border-[#C9A84C]/10" />
+                          <ImageWithFallback src={p.image} alt={p.name} className="w-10 h-12 object-cover rounded-lg border border-[#C9A84C]/10" />
                         ) : (
                           <div className="w-10 h-12 rounded-lg bg-black/40 border border-[#C9A84C]/10 flex items-center justify-center text-[9px]">No Img</div>
                         )}
@@ -974,7 +975,7 @@ export default function AdminDashboard() {
                     <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded bg-black/40 border border-[#C9A84C]/10 text-[#C9A84C]">Order: {c.display_order}</span>
                   </div>
                   {c.image ? (
-                    <img src={c.image} alt={c.name} className="w-full h-32 object-cover rounded-2xl border border-[#C9A84C]/10" />
+                    <ImageWithFallback src={c.image} alt={c.name} className="w-full h-32 object-cover rounded-2xl border border-[#C9A84C]/10" />
                   ) : (
                     <div className="w-full h-32 bg-black/45 rounded-2xl border border-[#C9A84C]/10 flex items-center justify-center text-xs text-gray-600">No Image Uploaded</div>
                   )}
@@ -1197,7 +1198,7 @@ export default function AdminDashboard() {
                       <div key={item.id} className="flex justify-between items-center gap-2 border-b border-[#C9A84C]/5 pb-2 last:border-0 last:pb-0">
                         <div className="flex items-center gap-3">
                           {item.product_image ? (
-                            <img src={item.product_image} alt={item.product_name} className="w-8 h-10 object-cover rounded border border-[#C9A84C]/10" />
+                            <ImageWithFallback src={item.product_image} alt={item.product_name} className="w-8 h-10 object-cover rounded border border-[#C9A84C]/10" />
                           ) : (
                             <div className="w-8 h-10 bg-white/5 border border-white/10 rounded flex items-center justify-center text-[8px]">No Img</div>
                           )}
@@ -1244,6 +1245,7 @@ export default function AdminDashboard() {
                     <div><p className="text-[10px] text-gray-500">Name</p><p className="text-white font-medium mt-0.5">{selectedOrder.full_name}</p></div>
                     <div><p className="text-[10px] text-gray-500">Contact</p><p className="text-white mt-0.5">{selectedOrder.email}</p><p className="text-white">{selectedOrder.phone}</p></div>
                     <div><p className="text-[10px] text-gray-500">Shipping Address</p><p className="text-white mt-0.5 leading-relaxed">{selectedOrder.address}, {selectedOrder.city}, {selectedOrder.state} - {selectedOrder.pincode}</p></div>
+                    <div><p className="text-[10px] text-gray-500">Payment Method</p><p className="text-white mt-0.5">{selectedOrder.payment_method_display || "Cash on Delivery"}</p></div>
                     {selectedOrder.notes && <div><p className="text-[10px] text-gray-500">Notes</p><p className="text-amber-500 italic font-light mt-0.5">"{selectedOrder.notes}"</p></div>}
                   </div>
                 </div>
@@ -1469,7 +1471,7 @@ export default function AdminDashboard() {
             <div className="space-y-2 border-t border-[#C9A84C]/10 pt-4">
               <label className="block text-[10px] uppercase tracking-wider text-gray-400 font-bold">Backup Image</label>
               {heroCMS.image && (
-                <img src={heroCMS.image} alt="hero backup banner" className="w-full h-24 object-cover rounded-xl border border-[#C9A84C]/10" />
+                <ImageWithFallback src={heroCMS.image} alt="hero backup banner" className="w-full h-24 object-cover rounded-xl border border-[#C9A84C]/10" />
               )}
               <input type="file" name="image" className="w-full text-[10px] text-gray-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-full file:border-0 file:text-[9px] file:font-semibold file:bg-white/10 file:text-white" />
             </div>

@@ -3,6 +3,7 @@ import { formatCurrency } from "../utils";
 import { apiFetch } from "../api";
 import { Link } from "react-router";
 import { ClipboardList, ChevronDown, ChevronUp, Package, MapPin, Calendar, Clock, Receipt } from "lucide-react";
+import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 
 interface OrderItem {
   id: number;
@@ -33,6 +34,8 @@ interface Order {
   state?: string;
   pincode?: string;
   notes?: string;
+  payment_method?: string;
+  payment_method_display?: string;
   items?: OrderItem[];
 }
 
@@ -216,6 +219,9 @@ export default function OrderHistory() {
                                 {details.city}, {details.state} - {details.pincode}
                               </p>
                               <p className="text-sm" style={{ color: "var(--muted-foreground)" }}>Phone: {details.phone}</p>
+                              <p className="text-sm" style={{ color: "var(--muted-foreground)" }}>
+                                Payment: {details.payment_method_display || "Cash on Delivery"}
+                              </p>
                             </div>
 
                             <div className="space-y-2">
@@ -250,7 +256,7 @@ export default function OrderHistory() {
                                   style={{ background: "rgba(0,0,0,0.2)", border: "1px solid rgba(201,168,76,0.08)" }}
                                 >
                                   {item.product_image ? (
-                                    <img
+                                    <ImageWithFallback
                                       src={item.product_image}
                                       alt={item.product_name}
                                       className="w-14 h-14 object-cover rounded-xl shrink-0"

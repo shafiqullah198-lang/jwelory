@@ -3,6 +3,7 @@ import { formatCurrency } from "../utils";
 import { Link } from "react-router";
 import { Heart, ShoppingBag, Trash2 } from "lucide-react";
 import type { Product } from "../components/ProductCard";
+import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 
 interface WishlistPageProps {
   items: Product[];
@@ -44,7 +45,7 @@ export default function WishlistPage({ items, onRemove, onAddToCart }: WishlistP
             <Link
               to="/products"
               className="inline-block px-8 py-3.5 rounded-full text-black font-semibold transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
-              style={{ background: "linear-gradient(135deg, var(--rose-gold), #E0C87A)" }}
+              style={{ background: "var(--primary-cta-background)" }}
             >
               Discover Products
             </Link>
@@ -65,7 +66,7 @@ export default function WishlistPage({ items, onRemove, onAddToCart }: WishlistP
                 >
                   {/* Image */}
                   <div className="relative overflow-hidden" style={{ aspectRatio: "3/4", background: "#0a0800" }}>
-                    <img
+                    <ImageWithFallback
                       src={product.image}
                       alt={product.name}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-108"
@@ -138,7 +139,7 @@ export default function WishlistPage({ items, onRemove, onAddToCart }: WishlistP
                       }}
                       className="mt-3 w-full flex items-center justify-center gap-2 py-2 rounded-full text-xs font-semibold text-black transition-all duration-300 hover:shadow-md"
                       style={{
-                        background: "linear-gradient(135deg, var(--rose-gold), #8B6914)",
+                        background: "var(--primary-cta-background)",
                         cursor: "pointer",
                       }}
                     >

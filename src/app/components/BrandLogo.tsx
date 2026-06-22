@@ -5,6 +5,10 @@ export const BRAND_TAGLINE = "Luxury Jewelry";
 export const BRAND_LOGO_PATH = "/logo.png";
 export const BRAND_INSTAGRAM_HANDLE = "@stylishfancyjewelry";
 export const BRAND_HASHTAG = "#StylishFancyJewelry";
+export const BUSINESS_EMAIL = "info@stylishfancyjewelry.com";
+export const BUSINESS_PHONE = "+92 300 1234567";
+export const BUSINESS_WHATSAPP = "923001234567";
+export const BUSINESS_LOCATION = "Lahore, Pakistan";
 
 interface BrandLogoProps {
   align?: "left" | "center";

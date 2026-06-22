@@ -7,6 +7,8 @@ from django.contrib.auth.decorators import login_required
 from .models import Order, OrderItem
 from cart.views import get_or_create_cart
 
+PAYMENT_METHODS = {'cod', 'bank', 'jazzcash', 'easypaisa'}
+
 
 @csrf_exempt
 @login_required
@@ -66,6 +68,13 @@ def checkout_view(request):
         if errors:
             return JsonResponse({'success': False, 'errors': errors}, status=400)
 
+        payment_method = data.get('payment_method', 'cod')
+        if payment_method not in PAYMENT_METHODS:
+            return JsonResponse({
+                'success': False,
+                'errors': {'payment_method': 'Please select a valid payment method.'}
+            }, status=400)
+
         # Check stock
         for item in items:
             if item.quantity > item.product.stock:
@@ -83,6 +92,7 @@ def checkout_view(request):
         shipping_fee = 0 if cart.subtotal >= 5000 else 200
         order = Order.objects.create(
             user=request.user,
+            payment_method=payment_method,
             full_name=data['full_name'],
             email=data['email'],
             phone=data['phone'],
@@ -149,6 +159,8 @@ def _serialize_order(order, full=False):
         'status': order.status,
         'status_display': order.get_status_display(),
         'status_color': order.status_color,
+        'payment_method': order.payment_method,
+        'payment_method_display': order.get_payment_method_display(),
         'total': float(order.total),
         'subtotal': float(order.subtotal),
         'shipping': float(order.shipping),

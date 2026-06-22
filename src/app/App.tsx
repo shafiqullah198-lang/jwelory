@@ -73,16 +73,28 @@ export function AppContent() {
 
   useEffect(() => {
     fetchCart();
-    
-    // Load wishlist items
-    const saved = localStorage.getItem("rosella_wishlist");
-    if (saved) {
+
+    const syncWishlist = () => {
+      const saved = localStorage.getItem("rosella_wishlist");
+      if (!saved) {
+        setWishlistItems([]);
+        return;
+      }
       try {
         setWishlistItems(JSON.parse(saved));
       } catch (e) {
         console.error("Failed to parse wishlist:", e);
+        setWishlistItems([]);
       }
-    }
+    };
+
+    syncWishlist();
+    window.addEventListener("rosella_wishlist_changed", syncWishlist);
+    window.addEventListener("storage", syncWishlist);
+    return () => {
+      window.removeEventListener("rosella_wishlist_changed", syncWishlist);
+      window.removeEventListener("storage", syncWishlist);
+    };
   }, []);
 
   const handleAddToCart = async (product: Product) => {
@@ -148,6 +160,7 @@ export function AppContent() {
         updated = [...prev, product];
       }
       localStorage.setItem("rosella_wishlist", JSON.stringify(updated));
+      window.dispatchEvent(new Event("rosella_wishlist_changed"));
       return updated;
     });
   };
@@ -197,6 +210,7 @@ export function AppContent() {
 
   return (
     <div
+      id="app-shell"
       style={{
         fontFamily: "'DM Sans', sans-serif",
         background: "var(--background)",
@@ -215,7 +229,7 @@ export function AppContent() {
         />
       )}
 
-      <div className="flex-grow">
+      <div id="page-content" className="flex-grow">
         <Routes>
           <Route
             path="/"

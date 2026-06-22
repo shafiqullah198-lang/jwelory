@@ -425,7 +425,7 @@ export function LuxurySaleCollection({ onAddToCart, onQuickView }: SectionsProps
               to="/products?filter=sale"
               className="flex items-center gap-2 px-6 py-3 rounded-full transition-all duration-300 hover:-translate-y-0.5"
               style={{
-                background: "linear-gradient(135deg, #C9A84C, #8B6914)",
+                background: "var(--primary-cta-background)",
                 color: "#fff",
                 fontFamily: "'DM Sans', sans-serif",
                 fontWeight: 500,
@@ -479,7 +479,7 @@ export function OfferBanner({ offerData }: { offerData?: any }) {
         <Link
           to="/products?filter=sale"
           className="inline-flex items-center gap-2 px-8 py-4 rounded-full transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
-          style={{ background: "linear-gradient(135deg, #E0C87A, #C9A84C)", color: "#fff", fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: "0.9rem", letterSpacing: "0.08em", textDecoration: "none" }}
+          style={{ background: "var(--primary-cta-background)", color: "#fff", fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: "0.9rem", letterSpacing: "0.08em", textDecoration: "none" }}
         >
           Shop The Sale <ArrowRight size={18} />
         </Link>
@@ -656,7 +656,7 @@ export function Newsletter() {
               className="flex-1 px-5 py-3.5 rounded-full outline-none"
               style={{ border: "1.5px solid rgba(201,168,76,0.3)", background: "rgba(255,255,255,0.05)", fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem", color: "var(--foreground)" }}
             />
-            <button type="submit" className="px-7 py-3.5 rounded-full text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg whitespace-nowrap" style={{ background: "linear-gradient(135deg, #C9A84C, #8B6914)", fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: "0.9rem", border: "none", cursor: "pointer" }}>
+            <button type="submit" className="px-7 py-3.5 rounded-full text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg whitespace-nowrap" style={{ background: "var(--primary-cta-background)", fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: "0.9rem", border: "none", cursor: "pointer" }}>
               Subscribe
             </button>
           </form>

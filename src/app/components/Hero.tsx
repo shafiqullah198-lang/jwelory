@@ -3,6 +3,8 @@ import { motion } from "motion/react";
 import { ArrowRight, Volume2, VolumeX } from "lucide-react";
 import { Link } from "react-router";
 import heroVideo from "../../imports/jewelry_no_watermark__2___1_-1.mp4";
+import { resolveMediaUrl } from "../api";
+import { PRIMARY_CTA_BACKGROUND } from "../utils";
 
 interface HeroProps {
   bannerData?: {
@@ -25,6 +27,7 @@ export function Hero({ bannerData }: HeroProps = {}) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [muted, setMuted] = useState(true);
   const [loaded, setLoaded] = useState(false);
+  const [hasAudio, setHasAudio] = useState(false);
 
   useEffect(() => {
     const v = videoRef.current;
@@ -36,11 +39,34 @@ export function Hero({ bannerData }: HeroProps = {}) {
   const toggleMute = () => {
     const v = videoRef.current;
     if (!v) return;
-    v.muted = !muted;
-    setMuted((m) => !m);
+    const nextMuted = !v.muted;
+    v.muted = nextMuted;
+    setMuted(nextMuted);
   };
 
-  const videoSource = bannerData?.video || heroVideo;
+  const detectAudio = () => {
+    const video = videoRef.current as (HTMLVideoElement & {
+      audioTracks?: { length: number };
+      mozHasAudio?: boolean;
+      webkitAudioDecodedByteCount?: number;
+      captureStream?: () => MediaStream;
+    }) | null;
+    if (!video) return;
+    let streamHasAudio = 0;
+    try {
+      streamHasAudio = video.captureStream?.().getAudioTracks().length || 0;
+    } catch {
+      streamHasAudio = 0;
+    }
+    setHasAudio(Boolean(
+      video.audioTracks?.length ||
+      video.mozHasAudio ||
+      (video.webkitAudioDecodedByteCount || 0) > 0 ||
+      streamHasAudio
+    ));
+  };
+
+  const videoSource = bannerData?.video ? resolveMediaUrl(bannerData.video) : heroVideo;
 
   return (
     <section
@@ -59,10 +85,15 @@ export function Hero({ bannerData }: HeroProps = {}) {
         key={videoSource}
         ref={videoRef}
         autoPlay
-        muted
+        muted={muted}
         loop
         playsInline
-        onCanPlay={() => setLoaded(true)}
+        onLoadedMetadata={detectAudio}
+        onTimeUpdate={detectAudio}
+        onCanPlay={() => {
+          setLoaded(true);
+          detectAudio();
+        }}
         style={{
           position: "absolute",
           inset: 0,
@@ -129,48 +160,6 @@ export function Hero({ bannerData }: HeroProps = {}) {
         }}
       >
         <div style={{ maxWidth: "640px" }}>
-
-          {/* Eyebrow */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "10px",
-              marginBottom: "1.75rem",
-            }}
-          >
-            <span
-              style={{
-                display: "block",
-                width: "32px",
-                height: "1px",
-                background: "rgba(201,168,76,0.8)",
-              }}
-            />
-            <span
-              style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: "0.68rem",
-                letterSpacing: "0.28em",
-                textTransform: "uppercase",
-                color: "rgba(201,168,76,0.9)",
-                fontWeight: 400,
-              }}
-            >
-              {bannerData?.eyebrow_text || "New Collection 2025"}
-            </span>
-            <span
-              style={{
-                display: "block",
-                width: "32px",
-                height: "1px",
-                background: "rgba(201,168,76,0.8)",
-              }}
-            />
-          </motion.div>
 
           {/* Headline */}
           <motion.h1
@@ -241,7 +230,7 @@ export function Hero({ bannerData }: HeroProps = {}) {
                 gap: "10px",
                 padding: "15px 36px",
                 borderRadius: "100px",
-                background: "linear-gradient(135deg, #E0C87A 0%, #C9A84C 100%)",
+                background: PRIMARY_CTA_BACKGROUND,
                 color: "#fff",
                 fontFamily: "'DM Sans', sans-serif",
                 fontWeight: 500,
@@ -352,7 +341,7 @@ export function Hero({ bannerData }: HeroProps = {}) {
       </div>
 
       {/* ── MUTE TOGGLE ── */}
-      <motion.button
+      {hasAudio && <motion.button
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.3, duration: 0.5 }}
@@ -384,7 +373,7 @@ export function Hero({ bannerData }: HeroProps = {}) {
       >
         {muted ? <VolumeX size={13} /> : <Volume2 size={13} />}
         {muted ? "Unmute" : "Mute"}
-      </motion.button>
+      </motion.button>}
 
       {/* ── SCROLL INDICATOR ── */}
       <motion.div

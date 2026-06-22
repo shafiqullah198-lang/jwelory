@@ -4,6 +4,7 @@ import { useParams, Link } from "react-router";
 import { apiFetch } from "../api";
 import { ProductCard, type Product } from "../components/ProductCard";
 import { Star, Shield, Truck, RefreshCw, ShoppingBag, Plus, Minus, Loader2 } from "lucide-react";
+import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 
 interface ProductDetailData extends Product {
   description: string;
@@ -126,7 +127,7 @@ export default function ProductDetail({ onAddToCart, onQuickView }: ProductDetai
               className="aspect-[3/4] w-full rounded-3xl overflow-hidden relative"
               style={{ background: "#0a0800", border: "1px solid rgba(201,168,76,0.18)" }}
             >
-              <img src={activeImage} alt={product.name} className="w-full h-full object-cover" />
+              <ImageWithFallback src={activeImage} alt={product.name} className="w-full h-full object-cover" />
               {discount > 0 && (
                 <span
                   className="absolute top-4 left-4 px-3 py-1 rounded-full text-black font-bold text-xs"
@@ -149,7 +150,7 @@ export default function ProductDetail({ onAddToCart, onQuickView }: ProductDetai
                     background: "rgba(0,0,0,0.2)",
                   }}
                 >
-                  <img src={product.image} alt="thumbnail main" className="w-full h-full object-cover" />
+                  <ImageWithFallback src={product.image} alt="thumbnail main" className="w-full h-full object-cover" />
                 </button>
                 {product.images.map((img) => (
                   <button
@@ -161,7 +162,7 @@ export default function ProductDetail({ onAddToCart, onQuickView }: ProductDetai
                       background: "rgba(0,0,0,0.2)",
                     }}
                   >
-                    <img src={img.image} alt="thumbnail" className="w-full h-full object-cover" />
+                    <ImageWithFallback src={img.image} alt="thumbnail" className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
@@ -229,7 +230,7 @@ export default function ProductDetail({ onAddToCart, onQuickView }: ProductDetai
                   <button
                     onClick={handleAddToCart}
                     className="flex-1 flex items-center justify-center gap-2 px-8 py-3.5 rounded-full text-white font-medium transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
-                    style={{ background: "linear-gradient(135deg, #E0C87A, #C9A84C)" }}
+                    style={{ background: "var(--primary-cta-background)" }}
                   >
                     <ShoppingBag size={18} />
                     <span>{added ? "Added ✓" : "Add to Cart"}</span>

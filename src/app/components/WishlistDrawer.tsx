@@ -3,6 +3,7 @@ import { formatCurrency } from "../utils";
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router";
 import type { Product } from "./ProductCard";
+import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 interface WishlistDrawerProps {
   open: boolean;
@@ -80,7 +81,7 @@ export function WishlistDrawer({ open, onClose, items, onRemove, onAddToCart }: 
                   {items.map((item) => (
                     <div key={item.id} className="flex gap-4 p-3 rounded-2xl" style={{ background: "#13100A", border: "1px solid rgba(201,168,76,0.15)" }}>
                       <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0" style={{ background: "#fff" }}>
-                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                        <ImageWithFallback src={item.image} alt={item.name} className="w-full h-full object-cover" />
                       </div>
                       <div className="flex-1 flex flex-col gap-1">
                         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.65rem", letterSpacing: "0.12em", color: "var(--rose-gold)", textTransform: "uppercase" }}>{item.category}</p>
@@ -123,7 +124,7 @@ export function WishlistDrawer({ open, onClose, items, onRemove, onAddToCart }: 
                   onClick={handleGoToWishlist}
                   className="w-full flex items-center justify-center gap-2 py-4 rounded-full text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
                   style={{
-                    background: "linear-gradient(135deg, var(--rose-gold), #8B6914)",
+                    background: "var(--primary-cta-background)",
                     fontFamily: "'DM Sans', sans-serif",
                     fontWeight: 500,
                     fontSize: "1rem",

@@ -5,6 +5,13 @@ import { CheckCircle2, ShoppingBag, ClipboardList, Printer, Loader2 } from "luci
 import { apiFetch } from "../api";
 import { BRAND_NAME } from "../components/BrandLogo";
 
+const PAYMENT_INSTRUCTIONS: Record<string, string> = {
+  cod: "Please pay the courier in cash when your order is delivered.",
+  bank: "Complete the bank transfer using the account details and payment reference provided in your order confirmation.",
+  jazzcash: "Send the invoice total through JazzCash using the payment details provided in your order confirmation.",
+  easypaisa: "Send the invoice total through Easypaisa using the payment details provided in your order confirmation.",
+};
+
 export default function OrderSuccess() {
   const { order_number } = useParams<{ order_number: string }>();
   const [order, setOrder] = useState<any>(null);
@@ -29,30 +36,57 @@ export default function OrderSuccess() {
 
   return (
     <div
+      id="order-success-page"
       className="min-h-screen py-16 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-start"
       style={{ background: "#080600" }}
     >
       {/* Injecting Print Styles */}
       <style>{`
         @media print {
+          @page {
+            size: A4;
+            margin: 10mm;
+          }
+          html, body, #root, #app-shell, #page-content, #order-success-page {
+            width: 100% !important;
+            min-height: 0 !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+          }
+          #app-shell, #page-content, #order-success-page {
+            display: block !important;
+          }
           body {
             background: white !important;
             color: black !important;
           }
+          #app-shell > :not(#page-content) {
+            display: none !important;
+          }
           #non-printable-content {
             display: none !important;
+          }
+          #order-success-page > div {
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
           }
           #printable-invoice-container {
             display: block !important;
             width: 100% !important;
             max-width: 100% !important;
             margin: 0 !important;
-            padding: 20px !important;
+            padding: 8mm !important;
             background: white !important;
             color: black !important;
             border: 1px solid #ddd !important;
             border-radius: 0 !important;
             box-shadow: none !important;
+            break-inside: avoid-page !important;
+            page-break-inside: avoid !important;
+            box-sizing: border-box !important;
           }
           /* Override styles for printing */
           #printable-invoice-container * {
@@ -61,6 +95,10 @@ export default function OrderSuccess() {
           }
           .no-print {
             display: none !important;
+          }
+          table, tr, td, th {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
           }
         }
       `}</style>
@@ -192,8 +230,22 @@ export default function OrderSuccess() {
                 <h4 className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "var(--rose-gold)" }}>Shipping Address:</h4>
                 <p className="text-white leading-relaxed">{order.address}</p>
                 <p className="text-white">{order.city}, {order.state} - {order.pincode}</p>
-                <p style={{ color: "var(--muted-foreground)" }}>Payment Method: Cash on Delivery (COD)</p>
+                <p style={{ color: "var(--muted-foreground)" }}>
+                  Payment Method: {order.payment_method_display || "Cash on Delivery"}
+                </p>
               </div>
+            </div>
+
+            <div
+              className="rounded-xl px-4 py-3 text-xs"
+              style={{
+                background: "rgba(201,168,76,0.06)",
+                border: "1px solid rgba(201,168,76,0.14)",
+                color: "var(--muted-foreground)",
+              }}
+            >
+              <strong style={{ color: "var(--rose-gold)" }}>Payment instructions: </strong>
+              {PAYMENT_INSTRUCTIONS[order.payment_method] || PAYMENT_INSTRUCTIONS.cod}
             </div>
 
             {/* Items Table */}
@@ -211,7 +263,7 @@ export default function OrderSuccess() {
                   {order.items?.map((item: any) => (
                     <tr key={item.id} className="border-b border-white/5">
                       <td className="py-3 font-medium text-white">{item.product_name}</td>
-                      <td className="py-3 text-right" style={{ color: "var(--muted-foreground)" }}>Rs. {item.price.toLocaleString()}</td>
+                      <td className="py-3 text-right" style={{ color: "var(--muted-foreground)" }}>{formatCurrency(item.price)}</td>
                       <td className="py-3 text-center text-white">{item.quantity}</td>
                       <td className="py-3 text-right font-semibold text-white">{formatCurrency(item.line_total)}</td>
                     </tr>
@@ -228,7 +280,7 @@ export default function OrderSuccess() {
               </div>
               <div className="flex justify-between w-64 text-sm" style={{ color: "var(--muted-foreground)" }}>
                 <span>Shipping:</span>
-                <span className="text-white font-medium">{order.shipping === 0 ? "FREE" : `Rs. ${order.shipping}`}</span>
+                <span className="text-white font-medium">{order.shipping === 0 ? "FREE" : formatCurrency(order.shipping)}</span>
               </div>
               <div className="flex justify-between w-64 border-t pt-2 mt-2 font-bold text-base" style={{ color: "var(--rose-gold)", borderColor: "rgba(201,168,76,0.15)" }}>
                 <span>Total Amount:</span>

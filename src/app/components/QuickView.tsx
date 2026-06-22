@@ -3,6 +3,7 @@ import { formatCurrency } from "../utils";
 import { motion, AnimatePresence } from "motion/react";
 import { useState, useEffect } from "react";
 import type { Product } from "./ProductCard";
+import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 interface QuickViewProps {
   product: Product | null;
@@ -17,18 +18,27 @@ export function QuickView({ product, onClose, onAddToCart }: QuickViewProps) {
 
   useEffect(() => {
     if (!product) return;
-    const saved = localStorage.getItem("rosella_wishlist");
-    if (saved) {
+    const syncWishlistState = () => {
+      const saved = localStorage.getItem("rosella_wishlist");
+      if (!saved) {
+        setWishlisted(false);
+        return;
+      }
       try {
         const list = JSON.parse(saved);
         setWishlisted(list.some((item: any) => item.id === product.id));
       } catch (e) {
         setWishlisted(false);
       }
-    } else {
-      setWishlisted(false);
-    }
+    };
+    syncWishlistState();
+    window.addEventListener("rosella_wishlist_changed", syncWishlistState);
+    window.addEventListener("storage", syncWishlistState);
     setQty(1);
+    return () => {
+      window.removeEventListener("rosella_wishlist_changed", syncWishlistState);
+      window.removeEventListener("storage", syncWishlistState);
+    };
   }, [product]);
 
   const handleAdd = () => {
@@ -95,7 +105,7 @@ export function QuickView({ product, onClose, onAddToCart }: QuickViewProps) {
             <div className="grid sm:grid-cols-2">
               {/* Image */}
               <div className="aspect-square sm:aspect-auto sm:h-full" style={{ background: "#080600", minHeight: "280px" }}>
-                <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                <ImageWithFallback src={product.image} alt={product.name} className="w-full h-full object-cover" />
               </div>
 
               {/* Details */}
@@ -161,7 +171,7 @@ export function QuickView({ product, onClose, onAddToCart }: QuickViewProps) {
                     onClick={handleAdd}
                     className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-white transition-all duration-300"
                     style={{
-                      background: added ? "#2b2b2b" : "linear-gradient(135deg, var(--rose-gold), #8B6914)",
+                      background: added ? "#2b2b2b" : "var(--primary-cta-background)",
                       fontFamily: "'DM Sans', sans-serif",
                       fontWeight: 500,
                       fontSize: "0.9rem",

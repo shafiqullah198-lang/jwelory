@@ -6,6 +6,7 @@ import { useAuth } from "./AuthContext";
 import { apiFetch } from "../api";
 import { BrandLogo } from "./BrandLogo";
 import { formatCurrency } from "../utils";
+import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 export const CATEGORY_TYPOS: Record<string, string> = {
   earing: "Earrings",
@@ -421,7 +422,7 @@ export function Header({ cartCount, wishlistCount, onCartClick, onWishlistClick 
                             className="w-12 h-12 rounded-xl overflow-hidden shrink-0"
                             style={{ background: "#f5f5f0" }}
                           >
-                            <img
+                            <ImageWithFallback
                               src={product.image}
                               alt={product.name}
                               className="w-full h-full object-cover"

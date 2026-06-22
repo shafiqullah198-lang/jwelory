@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Heart, ShoppingBag, Star, Eye, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { formatCurrency } from "../utils";
+import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 export interface Product {
   id: number;
@@ -25,7 +26,6 @@ interface ProductCardProps {
 }
 
 const GOLD = "#C9A84C";
-const GOLD_DARK = "#8B6914";
 
 export function ProductCard({ product, onAddToCart, onQuickView }: ProductCardProps) {
   const [wishlisted, setWishlisted] = useState(() => {
@@ -42,6 +42,23 @@ export function ProductCard({ product, onAddToCart, onQuickView }: ProductCardPr
   });
   const [addedToCart, setAddedToCart] = useState(false);
   const [hovered, setHovered] = useState(false);
+
+  useEffect(() => {
+    const syncWishlistState = () => {
+      try {
+        const list = JSON.parse(localStorage.getItem("rosella_wishlist") || "[]");
+        setWishlisted(list.some((item: Product) => item.id === product.id));
+      } catch {
+        setWishlisted(false);
+      }
+    };
+    window.addEventListener("rosella_wishlist_changed", syncWishlistState);
+    window.addEventListener("storage", syncWishlistState);
+    return () => {
+      window.removeEventListener("rosella_wishlist_changed", syncWishlistState);
+      window.removeEventListener("storage", syncWishlistState);
+    };
+  }, [product.id]);
 
   const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
 
@@ -93,7 +110,7 @@ export function ProductCard({ product, onAddToCart, onQuickView }: ProductCardPr
     >
       {/* Image Area */}
       <div className="relative overflow-hidden" style={{ aspectRatio: "3/4", background: "#0a0800" }}>
-        <img
+        <ImageWithFallback
           src={product.image}
           alt={product.name}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-108"
@@ -286,7 +303,7 @@ export function ProductCard({ product, onAddToCart, onQuickView }: ProductCardPr
           style={{
             background: addedToCart
               ? "rgba(201,168,76,0.15)"
-              : `linear-gradient(135deg, ${GOLD}, ${GOLD_DARK})`,
+              : "var(--primary-cta-background)",
             color: addedToCart ? GOLD : "#000",
             border: addedToCart ? `1px solid rgba(201,168,76,0.4)` : "none",
             fontFamily: "'DM Sans', sans-serif",
