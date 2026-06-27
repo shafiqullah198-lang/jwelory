@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router";
-import { ShoppingBag, Heart, Search, Menu, X, ChevronDown, User as UserIcon } from "lucide-react";
+import { ClipboardList, ShoppingBag, Heart, Search, Menu, X, ChevronDown, User as UserIcon } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "./AuthContext";
 import { apiFetch } from "../api";
@@ -141,12 +141,12 @@ export function Header({ cartCount, wishlistCount, onCartClick, onWishlistClick 
       >
         <div className="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <Link to="/" className="flex leading-none select-none">
+          <Link to="/" className="flex min-w-0 leading-none select-none" aria-label="Home">
             <BrandLogo
-              containerClassName="gap-2.5 md:gap-3"
-              imageClassName="h-[38px] w-[38px] md:h-12 md:w-12 shrink-0 object-contain"
-              titleClassName="text-[0.78rem] sm:text-[0.86rem] md:text-[1rem] font-semibold tracking-[0.14em] text-[var(--rose-gold)]"
-              taglineClassName="mt-1 text-[0.48rem] md:text-[0.52rem] tracking-[0.28em] uppercase text-[var(--muted-foreground)]"
+              containerClassName="gap-2 md:gap-3 min-w-0"
+              imageClassName="h-9 w-9 sm:h-10 sm:w-10 md:h-12 md:w-12 shrink-0 object-contain"
+              titleClassName="max-w-[8.5rem] sm:max-w-none text-[0.68rem] sm:text-[0.82rem] md:text-[1rem] font-semibold tracking-[0.08em] sm:tracking-[0.14em] text-[var(--rose-gold)] truncate"
+              taglineClassName="mt-1 text-[0.46rem] md:text-[0.52rem] tracking-[0.18em] sm:tracking-[0.28em] uppercase text-[var(--muted-foreground)] truncate"
             />
           </Link>
 
@@ -229,15 +229,31 @@ export function Header({ cartCount, wishlistCount, onCartClick, onWishlistClick 
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSearchOpen(true)}
-              className="p-2 rounded-full transition-all duration-200 hover:bg-secondary"
+              className="hidden sm:inline-flex p-2 rounded-full transition-all duration-200 hover:bg-secondary"
               style={{ color: "#F0E8D0" }}
               aria-label="Search"
             >
               <Search size={20} />
             </button>
+            <Link
+              to="/orders"
+              className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-full transition-all duration-200 hover:bg-secondary"
+              style={{
+                color: "#F0E8D0",
+                border: "1px solid rgba(201,168,76,0.22)",
+                textDecoration: "none",
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: "0.78rem",
+                fontWeight: 600,
+              }}
+              aria-label="Track Order"
+            >
+              <ClipboardList size={18} />
+              <span className="hidden md:inline">Track Order</span>
+            </Link>
             <button
               onClick={onWishlistClick}
-              className="p-2 rounded-full transition-all duration-200 hover:bg-secondary relative"
+              className="hidden sm:inline-flex p-2 rounded-full transition-all duration-200 hover:bg-secondary relative"
               style={{ color: "#F0E8D0" }}
               aria-label="Wishlist"
             >
@@ -270,7 +286,7 @@ export function Header({ cartCount, wishlistCount, onCartClick, onWishlistClick 
             {user ? (
               <Link
                 to="/profile"
-                className="p-2 rounded-full transition-all duration-200 hover:bg-secondary flex items-center justify-center"
+                className="hidden sm:flex p-2 rounded-full transition-all duration-200 hover:bg-secondary items-center justify-center"
                 aria-label="Profile"
               >
                 <div
@@ -283,7 +299,7 @@ export function Header({ cartCount, wishlistCount, onCartClick, onWishlistClick 
             ) : (
               <Link
                 to="/login"
-                className="p-2 rounded-full transition-all duration-200 hover:bg-secondary flex items-center justify-center"
+                className="hidden sm:flex p-2 rounded-full transition-all duration-200 hover:bg-secondary items-center justify-center"
                 style={{ color: "#F0E8D0" }}
                 aria-label="Login"
               >
@@ -569,6 +585,24 @@ export function Header({ cartCount, wishlistCount, onCartClick, onWishlistClick 
                 About Us
               </Link>
               <div className="my-3 border-t" style={{ borderColor: "rgba(201,168,76,0.18)" }} />
+              <Link
+                to="/orders"
+                onClick={() => setMobileOpen(false)}
+                className="py-3 px-4 rounded-xl transition-colors hover:bg-secondary flex items-center gap-2"
+                style={{ fontFamily: "'DM Sans', sans-serif", color: "var(--rose-gold)", fontWeight: 600, textDecoration: "none" }}
+              >
+                <ClipboardList size={17} />
+                Track Order
+              </Link>
+              <Link
+                to="/wishlist"
+                onClick={() => setMobileOpen(false)}
+                className="py-3 px-4 rounded-xl transition-colors hover:bg-secondary flex items-center gap-2"
+                style={{ fontFamily: "'DM Sans', sans-serif", color: "var(--foreground)", textDecoration: "none" }}
+              >
+                <Heart size={17} />
+                Wishlist
+              </Link>
               {user ? (
                 <Link
                   to="/profile"

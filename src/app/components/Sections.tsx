@@ -5,6 +5,7 @@ import { Star, ArrowRight, Shield, Truck, RefreshCw, HeadphonesIcon, Instagram, 
 import { ProductCard, type Product } from "./ProductCard";
 import { BRAND_HASHTAG, BRAND_INSTAGRAM_HANDLE, BRAND_NAME, BrandLogo } from "./BrandLogo";
 import { apiFetch } from "../api";
+import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 interface SectionsProps {
   onAddToCart: (p: Product) => void;
@@ -447,11 +448,29 @@ export function LuxurySaleCollection({ onAddToCart, onQuickView }: SectionsProps
 export function OfferBanner({ offerData }: { offerData?: any }) {
   const title = offerData?.title || "Up to 40% Off";
   const subtitle = offerData?.subtitle || "On Bridal Collections";
-  const description = offerData?.description || "Use code BRIDE40 at checkout. Limited period offer only.";
+  const description = offerData?.description || "Limited period offer only.";
   const code = offerData?.code || "BRIDE40";
-  const hours = offerData?.hours || "11";
-  const mins = offerData?.mins || "47";
-  const secs = offerData?.secs || "32";
+  const initialSeconds =
+    Math.max(0, Number(offerData?.hours ?? 11)) * 3600 +
+    Math.max(0, Number(offerData?.mins ?? 47)) * 60 +
+    Math.max(0, Number(offerData?.secs ?? 32));
+  const [remainingSeconds, setRemainingSeconds] = useState(initialSeconds);
+
+  useEffect(() => {
+    setRemainingSeconds(initialSeconds);
+  }, [initialSeconds]);
+
+  useEffect(() => {
+    if (remainingSeconds <= 0) return;
+    const timerId = window.setInterval(() => {
+      setRemainingSeconds((seconds) => Math.max(0, seconds - 1));
+    }, 1000);
+    return () => window.clearInterval(timerId);
+  }, [remainingSeconds]);
+
+  const hours = String(Math.floor(remainingSeconds / 3600)).padStart(2, "0");
+  const mins = String(Math.floor((remainingSeconds % 3600) / 60)).padStart(2, "0");
+  const secs = String(remainingSeconds % 60).padStart(2, "0");
 
   return (
     <section id="sale" className="py-16 md:py-20" style={{ background: "linear-gradient(135deg, #13100A 0%, #1A1500 50%, #13100A 100%)", borderTop: "1px solid rgba(201,168,76,0.2)", borderBottom: "1px solid rgba(201,168,76,0.2)" }}>
@@ -461,7 +480,7 @@ export function OfferBanner({ offerData }: { offerData?: any }) {
           {title}<br /><em style={{ color: "#C9A84C" }}>{subtitle}</em>
         </h2>
         <p className="mb-8" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "1rem", color: "rgba(255,255,255,0.6)", fontWeight: 300 }}>
-          Use code <strong style={{ color: "#E0C87A" }}>{code}</strong> at checkout. Limited period offer only.
+          {description} Use code <strong style={{ color: "#E0C87A" }}>{code}</strong> at checkout.
         </p>
         <div className="flex items-center justify-center gap-4 mb-8">
           {[{ val: hours, label: "Hours" }, { val: mins, label: "Mins" }, { val: secs, label: "Secs" }].map((t, i) => (
@@ -605,7 +624,7 @@ export function InstagramGallery({ handle }: { handle?: string }) {
               className="aspect-square rounded-2xl overflow-hidden relative group cursor-pointer"
               style={{ border: "1px solid rgba(201,168,76,0.15)" }}
             >
-              <img src={img} alt="Instagram gallery" className="w-full h-full object-cover" />
+              <ImageWithFallback src={img} alt="Instagram gallery" className="w-full h-full object-cover" />
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: "rgba(201,168,76,0.55)" }}>
                 <Instagram size={24} color="#fff" />
               </div>

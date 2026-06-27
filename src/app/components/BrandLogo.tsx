@@ -2,7 +2,7 @@ import { useState } from "react";
 
 export const BRAND_NAME = "STYLISH FANCY JEWELRY";
 export const BRAND_TAGLINE = "Luxury Jewelry";
-export const BRAND_LOGO_PATH = "/logo.png";
+export const BRAND_LOGO_PATH = "/logo.svg";
 export const BRAND_INSTAGRAM_HANDLE = "@stylishfancyjewelry";
 export const BRAND_HASHTAG = "#StylishFancyJewelry";
 export const BUSINESS_EMAIL = "info@stylishfancyjewelry.com";
@@ -30,6 +30,7 @@ export function BrandLogo({
   taglineClassName = "",
 }: BrandLogoProps) {
   const [logoMissing, setLogoMissing] = useState(false);
+  const initials = BRAND_NAME.split(" ").slice(0, 2).map((word) => word[0]).join("");
 
   return (
     <div
@@ -47,13 +48,36 @@ export function BrandLogo({
           gap: "0.75rem",
         }}
       >
-        {!logoMissing && (
+        {!logoMissing ? (
           <img
             src={BRAND_LOGO_PATH}
-            alt={BRAND_NAME}
+            alt={`${BRAND_NAME} logo symbol`}
             className={imageClassName}
+            loading="eager"
+            decoding="async"
             onError={() => setLogoMissing(true)}
           />
+        ) : (
+          <span
+            aria-label={`${BRAND_NAME} logo symbol unavailable`}
+            className={imageClassName}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: "0.75rem",
+              background: "linear-gradient(135deg, #0B0907, #1A1500)",
+              border: "1px solid rgba(201,168,76,0.35)",
+              color: "#E0B324",
+              fontFamily: "'Playfair Display', serif",
+              fontSize: "0.72rem",
+              fontWeight: 700,
+              letterSpacing: "0.08em",
+              lineHeight: 1,
+            }}
+          >
+            {initials}
+          </span>
         )}
         <div
           style={{

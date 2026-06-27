@@ -86,8 +86,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = async () => {
-    await apiFetch("auth/logout/", { method: "POST" });
-    setUser(null);
+    try {
+      await apiFetch("auth/logout/", { method: "POST" });
+    } finally {
+      setUser(null);
+    }
   };
 
   const updateProfile = async (profileData: any) => {
