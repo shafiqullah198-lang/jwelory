@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useCallback, useState, useEffect, useMemo, useRef } from "react";
 import { apiFetch } from "../api";
 import { SlidersHorizontal, ChevronDown, Search, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
@@ -13,6 +13,9 @@ const SORT_OPTIONS = [
   { label: "Best Rating", value: "rating" },
   { label: "Newest First", value: "newest" },
 ];
+
+const PAGE_SIZE = 24;
+let categoryTabsCache: string[] | null = null;
 
 interface ProductsProps {
   onAddToCart: (product: Product) => void;
@@ -37,15 +40,21 @@ export default function Products({ onAddToCart, onQuickView }: ProductsProps) {
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [debouncedSearch, setDebouncedSearch] = useState(initialSearch);
   const [activeFilter, setActiveFilter] = useState(initialFilter);
-  const [visibleCount, setVisibleCount] = useState(12);
+  const [currentPage, setCurrentPage] = useState(1);
   const [categoryTabs, setCategoryTabs] = useState<string[]>(["All", "Earrings", "Necklaces", "Rings", "Bracelets", "Bangles", "Sets"]);
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
     async function loadTabs() {
+      if (categoryTabsCache) {
+        setCategoryTabs(categoryTabsCache);
+        return;
+      }
       try {
         const data = await apiFetch("products/categories/");
         if (data && data.categories) {
-          setCategoryTabs(["All", ...data.categories.map((c: any) => c.name)]);
+          categoryTabsCache = ["All", ...data.categories.map((c: any) => c.name)];
+          setCategoryTabs(categoryTabsCache);
         }
       } catch (err) {
         console.error("Failed to load catalog category tabs:", err);
@@ -81,6 +90,7 @@ export default function Products({ onAddToCart, onQuickView }: ProductsProps) {
     }
     setSortBy(sort);
     setActiveFilter(filter);
+    setCurrentPage(1);
   }, [searchParams]);
 
   // Sync state from pathname/slug (for collections/:slug, new arrivals, etc.)
@@ -118,61 +128,75 @@ export default function Products({ onAddToCart, onQuickView }: ProductsProps) {
     if (debouncedSearch) params.q = debouncedSearch;
     if (activeFilter) params.filter = activeFilter;
     setSearchParams(params);
+  }, [activeCategory, sortBy, debouncedSearch, activeFilter, setSearchParams]);
+
+  const productsEndpoint = useMemo(() => {
+    const params = new URLSearchParams();
+    if (activeCategory !== "All") {
+      params.set("category", activeCategory === "Sets" ? "sets" : activeCategory.toLowerCase());
+    }
+    if (sortBy !== "featured") params.set("sort", sortBy);
+    if (debouncedSearch) params.set("q", debouncedSearch);
+    if (activeFilter) params.set("filter", activeFilter);
+    const query = params.toString();
+    return query ? `products/?${query}` : "products/";
   }, [activeCategory, sortBy, debouncedSearch, activeFilter]);
+
+  const mapProduct = useCallback((p: any): Product => ({
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    category: p.category,
+    price: p.currentPrice,
+    originalPrice: p.price,
+    rating: p.rating,
+    reviewCount: p.reviewCount,
+    image: p.image,
+    isNew: p.isNew,
+    isTrending: p.isTrending,
+    inStock: p.inStock,
+  }), []);
 
   // Fetch products from Django REST API
   useEffect(() => {
+    const requestId = ++requestIdRef.current;
+    let cancelled = false;
+
     async function loadProducts() {
       setLoading(true);
       try {
-        let endpoint = "products/?";
-        if (activeCategory !== "All") {
-          const categorySlug = activeCategory === "Sets" ? "sets" : activeCategory.toLowerCase();
-          endpoint += `category=${categorySlug}&`;
-        }
-        if (sortBy !== "featured") {
-          endpoint += `sort=${sortBy}&`;
-        }
-        if (debouncedSearch) {
-          endpoint += `q=${encodeURIComponent(debouncedSearch)}&`;
-        }
-        if (activeFilter) {
-          endpoint += `filter=${activeFilter}&`;
-        }
-
-        const data = await apiFetch(endpoint);
-        if (data && data.products) {
-          const mappedProducts = data.products.map((p: any) => ({
-            id: p.id,
-            name: p.name,
-            slug: p.slug,
-            category: p.category,
-            price: p.currentPrice,
-            originalPrice: p.price,
-            rating: p.rating,
-            reviewCount: p.reviewCount,
-            image: p.image,
-            isNew: p.isNew,
-            isTrending: p.isTrending,
-            inStock: p.inStock,
-          }));
-          setProducts(mappedProducts);
+        const data = await apiFetch(productsEndpoint);
+        if (!cancelled && requestId === requestIdRef.current && data && data.products) {
+          setProducts(data.products.map(mapProduct));
+          setCurrentPage(1);
         }
       } catch (err) {
-        console.error("Error loading products:", err);
+        if (!cancelled) console.error("Error loading products:", err);
       } finally {
-        setLoading(false);
+        if (!cancelled && requestId === requestIdRef.current) setLoading(false);
       }
     }
     loadProducts();
-  }, [activeCategory, sortBy, debouncedSearch, activeFilter]);
+    return () => {
+      cancelled = true;
+    };
+  }, [productsEndpoint, mapProduct]);
 
+  const totalPages = Math.max(1, Math.ceil(products.length / PAGE_SIZE));
   const visibleProducts = useMemo(() => {
-    return products.slice(0, visibleCount);
-  }, [products, visibleCount]);
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return products.slice(start, start + PAGE_SIZE);
+  }, [products, currentPage]);
+
+  const goToPage = useCallback((page: number) => {
+    setCurrentPage(Math.min(totalPages, Math.max(1, page)));
+    window.requestAnimationFrame(() => {
+      document.getElementById("catalog-results")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }, [totalPages]);
 
   return (
-    <div className="min-h-screen py-16 md:py-20" style={{ background: "#060400" }}>
+    <div className="min-h-screen py-16 md:py-20" style={{ background: "var(--section-background-alt)" }}>
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         {/* Section Header */}
         <div className="text-center mb-12">
@@ -203,12 +227,12 @@ export default function Products({ onAddToCart, onQuickView }: ProductsProps) {
                 key={tab}
                 onClick={() => {
                   setActiveCategory(tab);
-                  setVisibleCount(12);
+                  setCurrentPage(1);
                 }}
                 className="px-4 py-2 rounded-full transition-all duration-200"
                 style={{
                   background: activeCategory === tab ? "var(--rose-gold)" : "rgba(201,168,76,0.08)",
-                  color: activeCategory === tab ? "#fff" : "var(--foreground)",
+                  color: activeCategory === tab ? "var(--primary-foreground)" : "var(--foreground)",
                   border: activeCategory === tab ? "none" : "1px solid rgba(201,168,76,0.2)",
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: "0.82rem",
@@ -250,7 +274,7 @@ export default function Products({ onAddToCart, onQuickView }: ProductsProps) {
                 className="flex items-center justify-between gap-2 px-4 py-2 rounded-full w-full sm:w-auto"
                 style={{
                   border: "1px solid rgba(201,168,76,0.25)",
-                  background: "#fff",
+                  background: "var(--surface-soft)",
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: "0.82rem",
                   color: "var(--foreground)",
@@ -301,11 +325,11 @@ export default function Products({ onAddToCart, onQuickView }: ProductsProps) {
         </div>
 
         {/* Results Info */}
-        <div className="flex justify-between items-center mb-6 text-xs" style={{ fontFamily: "'DM Sans', sans-serif", color: "var(--muted-foreground)" }}>
+        <div id="catalog-results" className="flex justify-between items-center mb-6 text-xs scroll-mt-24" style={{ fontFamily: "'DM Sans', sans-serif", color: "var(--muted-foreground)" }}>
           {loading ? (
             <span className="flex items-center gap-1.5"><Loader2 size={12} className="animate-spin" /> Fetching jewelry...</span>
           ) : (
-            <span>Showing {Math.min(visibleCount, products.length)} of {products.length} products</span>
+            <span>Showing page {currentPage} of {totalPages} · {products.length} products</span>
           )}
         </div>
 
@@ -338,24 +362,65 @@ export default function Products({ onAddToCart, onQuickView }: ProductsProps) {
               </AnimatePresence>
             </motion.div>
 
-            {/* Load More */}
-            {visibleCount < products.length && (
-              <div className="flex justify-center mt-12">
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex flex-wrap items-center justify-center gap-2 mt-12">
                 <button
-                  onClick={() => setVisibleCount((c) => c + 8)}
-                  className="px-10 py-3.5 rounded-full transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+                  onClick={() => goToPage(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="px-5 py-3 rounded-full transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-40"
                   style={{
                     border: "1.5px solid var(--rose-gold)",
                     color: "var(--rose-gold)",
                     background: "transparent",
                     fontFamily: "'DM Sans', sans-serif",
-                    fontSize: "0.9rem",
+                    fontSize: "0.85rem",
                     fontWeight: 500,
-                    letterSpacing: "0.05em",
-                    cursor: "pointer",
+                    cursor: currentPage === 1 ? "not-allowed" : "pointer",
                   }}
                 >
-                  Load More Products ({products.length - visibleCount} remaining)
+                  Previous
+                </button>
+                {Array.from({ length: totalPages }).map((_, index) => {
+                  const page = index + 1;
+                  if (totalPages > 7 && page !== 1 && page !== totalPages && Math.abs(page - currentPage) > 1) {
+                    if (page === 2 || page === totalPages - 1) {
+                      return <span key={page} className="px-2" style={{ color: "var(--muted-foreground)" }}>...</span>;
+                    }
+                    return null;
+                  }
+                  return (
+                    <button
+                      key={page}
+                      onClick={() => goToPage(page)}
+                      className="w-11 h-11 rounded-full transition-all duration-300"
+                      style={{
+                        background: currentPage === page ? "var(--primary-cta-background)" : "rgba(201,168,76,0.08)",
+                        color: currentPage === page ? "var(--primary-foreground)" : "var(--foreground)",
+                        border: "1px solid rgba(201,168,76,0.24)",
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontWeight: 700,
+                      }}
+                    >
+                      {page}
+                    </button>
+                  );
+                })}
+                <button
+                  onClick={() => goToPage(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="px-5 py-3 rounded-full transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-40"
+                  style={{
+                    border: "1.5px solid var(--rose-gold)",
+                    color: "var(--rose-gold)",
+                    background: "transparent",
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: "0.85rem",
+                    fontWeight: 500,
+                    cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                  }}
+                >
+                  Next
                 </button>
               </div>
             )}

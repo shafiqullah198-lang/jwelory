@@ -89,7 +89,7 @@ export function CartDrawer({ open, onClose, items, onRemove, onUpdateQty }: Cart
                 <div className="flex flex-col gap-4">
                   {items.map((item) => (
                     <div key={item.id} className="flex gap-4 p-3 rounded-2xl" style={{ background: "#13100A", border: "1px solid rgba(201,168,76,0.15)" }}>
-                      <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0" style={{ background: "#fff" }}>
+                      <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0" style={{ background: "var(--surface-soft)" }}>
                         <ImageWithFallback src={item.image} alt={item.name} className="w-full h-full object-cover" />
                       </div>
                       <div className="flex-1 flex flex-col gap-1">

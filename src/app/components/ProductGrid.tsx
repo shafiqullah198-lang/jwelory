@@ -80,7 +80,7 @@ export function ProductGrid({ onAddToCart, onQuickView }: ProductGridProps) {
                 className="px-4 py-2 rounded-full transition-all duration-200"
                 style={{
                   background: activeCategory === tab ? "var(--rose-gold)" : "rgba(201,168,76,0.08)",
-                  color: activeCategory === tab ? "#fff" : "var(--foreground)",
+                  color: activeCategory === tab ? "var(--primary-foreground)" : "var(--foreground)",
                   border: activeCategory === tab ? "none" : "1px solid rgba(201,168,76,0.2)",
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: "0.82rem",
@@ -101,7 +101,7 @@ export function ProductGrid({ onAddToCart, onQuickView }: ProductGridProps) {
               className="flex items-center gap-2 px-4 py-2 rounded-full"
               style={{
                 border: "1px solid rgba(201,168,76,0.25)",
-                background: "#fff",
+                background: "var(--surface-soft)",
                 fontFamily: "'DM Sans', sans-serif",
                 fontSize: "0.82rem",
                 color: "var(--foreground)",
@@ -176,7 +176,7 @@ export function ProductGrid({ onAddToCart, onQuickView }: ProductGridProps) {
               style={{
                 border: "1.5px solid var(--rose-gold)",
                 color: "var(--rose-gold)",
-                background: "#fff",
+                background: "transparent",
                 fontFamily: "'DM Sans', sans-serif",
                 fontSize: "0.9rem",
                 fontWeight: 500,

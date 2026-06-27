@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { apiFetch } from "../api";
 import { Hero } from "../components/Hero";
 import {
@@ -41,7 +41,7 @@ export default function Home({ onAddToCart, onQuickView }: HomeProps) {
   }, []);
 
   // Map backend products to frontend Product structures
-  const mapProducts = (list: any[]): Product[] => {
+  const mapProducts = useCallback((list: any[]): Product[] => {
     if (!list) return [];
     return list.map((p) => ({
       id: p.id,
@@ -57,10 +57,10 @@ export default function Home({ onAddToCart, onQuickView }: HomeProps) {
       isTrending: p.isTrending,
       inStock: p.inStock,
     }));
-  };
+  }, []);
 
-  const bestSellers = data ? mapProducts(data.best_sellers) : [];
-  const newArrivals = data ? mapProducts(data.new_arrivals) : [];
+  const bestSellers = useMemo(() => (data ? mapProducts(data.best_sellers) : []), [data, mapProducts]);
+  const newArrivals = useMemo(() => (data ? mapProducts(data.new_arrivals) : []), [data, mapProducts]);
 
   return (
     <main>

@@ -119,45 +119,75 @@ export function FeaturedCategories({ categoriesData }: FeaturedCategoriesProps) 
         label: c.name,
         Icon: iconMap[c.name] || IconRing,
         count: c.product_count_label,
+        image: c.image,
       }))
     : [];
 
   return (
-    <section className="py-20 md:py-24" style={{ background: "#080600" }}>
+    <section className="py-20 md:py-24" style={{ background: "var(--section-background)" }}>
       <div className="max-w-7xl mx-auto px-4 md:px-8">
-        <div className="text-center mb-12">
-          <p style={eyebrow}>✦ Shop By Category ✦</p>
-          <h2 className="mt-3" style={heading}>Find Your Perfect Piece</h2>
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-5 mb-10 md:mb-12">
+          <div>
+            <p style={eyebrow}>✦ Shop By Category ✦</p>
+            <h2 className="mt-3" style={heading}>Find Your Perfect Piece</h2>
+          </div>
+          <p
+            className="max-w-md text-sm leading-7 md:text-right"
+            style={{ color: "var(--text-soft)", fontFamily: "'DM Sans', sans-serif" }}
+          >
+            Explore curated jewelry families designed for quick browsing and effortless filtering.
+          </p>
         </div>
         {cats.length === 0 ? (
           <div className="text-center py-10 text-gray-500 font-serif">No categories found</div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {cats.map(({ label, Icon, count }) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+            {cats.map(({ label, Icon, count, image }, index) => (
               <Link
                 key={label}
                 to={`/products?category=${encodeURIComponent(label)}`}
                 style={{ textDecoration: "none", display: "block" }}
               >
                 <motion.div
-                  whileHover={{ y: -6, scale: 1.05, boxShadow: "0 20px 48px rgba(201,168,76,0.25)" }}
+                  whileHover={{ y: -6, boxShadow: "0 24px 60px rgba(201,168,76,0.22)" }}
                   transition={{ duration: 0.22, ease: "easeOut" }}
-                  className="flex flex-col items-center gap-4 p-6 rounded-3xl cursor-pointer"
+                  className="relative min-h-[12rem] overflow-hidden rounded-3xl cursor-pointer group"
                   style={{
-                    background: "linear-gradient(135deg, #13100A, #1A1500)",
-                    border: "1px solid rgba(201,168,76,0.2)",
-                    boxShadow: "0 2px 16px rgba(0,0,0,0.4)",
+                    background: "var(--surface-luxury)",
+                    border: "1px solid rgba(201,168,76,0.18)",
+                    boxShadow: "var(--luxury-shadow)",
                   }}
                 >
-                  <div
-                    className="w-14 h-14 rounded-2xl flex items-center justify-center"
-                    style={{ background: "rgba(201,168,76,0.12)", border: "1px solid rgba(201,168,76,0.2)" }}
-                  >
-                    <Icon color="#C9A84C" />
-                  </div>
-                  <div className="text-center">
-                    <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "0.95rem", fontWeight: 600, color: "var(--foreground)" }}>{label}</p>
-                    <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.7rem", color: "var(--muted-foreground)", marginTop: "2px" }}>{count}</p>
+                  {image && (
+                    <div className="absolute inset-0 opacity-30 group-hover:opacity-45 transition-opacity duration-500">
+                      <ImageWithFallback src={image} alt={label} className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(4,3,0,0.92), rgba(26,21,0,0.74) 58%, rgba(201,168,76,0.16))" }} />
+                  <div className="relative h-full min-h-[12rem] p-6 flex flex-col justify-between">
+                    <div className="flex items-start justify-between gap-4">
+                      <div
+                        className="w-14 h-14 rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
+                        style={{ background: "rgba(201,168,76,0.12)", border: "1px solid rgba(201,168,76,0.24)" }}
+                      >
+                        <Icon color="#C9A84C" />
+                      </div>
+                      <span
+                        className="text-xs font-semibold"
+                        style={{ color: "rgba(224,200,122,0.72)", fontFamily: "'DM Sans', sans-serif" }}
+                      >
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                    </div>
+                    <div>
+                      <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.35rem", fontWeight: 600, color: "#F0E8D0" }}>{label}</p>
+                      <div className="mt-3 flex items-center justify-between gap-4">
+                        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.76rem", color: "rgba(240,232,208,0.58)", letterSpacing: "0.08em", textTransform: "uppercase" }}>{count}</p>
+                        <span className="h-9 w-9 rounded-full flex items-center justify-center transition-transform duration-300 group-hover:translate-x-1" style={{ background: "var(--primary-cta-background)", color: "var(--primary-foreground)" }}>
+                          <ArrowRight size={16} />
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </motion.div>
               </Link>

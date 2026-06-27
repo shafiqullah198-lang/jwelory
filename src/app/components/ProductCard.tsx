@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { Heart, ShoppingBag, Star, Eye, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { formatCurrency } from "../utils";
@@ -27,7 +27,7 @@ interface ProductCardProps {
 
 const GOLD = "#C9A84C";
 
-export function ProductCard({ product, onAddToCart, onQuickView }: ProductCardProps) {
+function ProductCardComponent({ product, onAddToCart, onQuickView }: ProductCardProps) {
   const [wishlisted, setWishlisted] = useState(() => {
     const saved = localStorage.getItem("rosella_wishlist");
     if (saved) {
@@ -60,15 +60,18 @@ export function ProductCard({ product, onAddToCart, onQuickView }: ProductCardPr
     };
   }, [product.id]);
 
-  const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+  const discount = useMemo(() => {
+    if (!product.originalPrice || product.originalPrice <= product.price) return 0;
+    return Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+  }, [product.originalPrice, product.price]);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = useCallback(() => {
     onAddToCart(product);
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 1800);
-  };
+  }, [onAddToCart, product]);
 
-  const handleToggleWishlist = (e: React.MouseEvent) => {
+  const handleToggleWishlist = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     const saved = localStorage.getItem("rosella_wishlist");
@@ -89,7 +92,11 @@ export function ProductCard({ product, onAddToCart, onQuickView }: ProductCardPr
     }
     localStorage.setItem("rosella_wishlist", JSON.stringify(updated));
     window.dispatchEvent(new Event("rosella_wishlist_changed"));
-  };
+  }, [product]);
+
+  const handleQuickView = useCallback(() => {
+    onQuickView(product);
+  }, [onQuickView, product]);
 
   return (
     <motion.div
@@ -201,7 +208,7 @@ export function ProductCard({ product, onAddToCart, onQuickView }: ProductCardPr
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 8 }}
               transition={{ duration: 0.15 }}
-              onClick={() => onQuickView(product)}
+              onClick={handleQuickView}
               className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-2 rounded-full"
               style={{
                 background: "rgba(201,168,76,0.18)",
@@ -320,3 +327,5 @@ export function ProductCard({ product, onAddToCart, onQuickView }: ProductCardPr
     </motion.div>
   );
 }
+
+export const ProductCard = memo(ProductCardComponent);

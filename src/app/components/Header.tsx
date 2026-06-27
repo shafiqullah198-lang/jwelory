@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router";
-import { ClipboardList, ShoppingBag, Heart, Search, Menu, X, ChevronDown, User as UserIcon } from "lucide-react";
+import { ClipboardList, ShoppingBag, Heart, Search, Menu, X, ChevronDown, User as UserIcon, Moon, Sun } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "./AuthContext";
 import { apiFetch } from "../api";
@@ -54,8 +54,17 @@ export function Header({ cartCount, wishlistCount, onCartClick, onWishlistClick 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [theme, setTheme] = useState<"dark" | "light">(() => {
+    if (typeof window === "undefined") return "dark";
+    return localStorage.getItem("sfj_theme") === "light" ? "light" : "dark";
+  });
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [categories, setCategories] = useState<string[]>(["Earrings", "Necklaces", "Rings", "Bracelets", "Bangles", "Sets"]);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("light", theme === "light");
+    localStorage.setItem("sfj_theme", theme);
+  }, [theme]);
 
   useEffect(() => {
     async function loadCats() {
@@ -252,6 +261,15 @@ export function Header({ cartCount, wishlistCount, onCartClick, onWishlistClick 
               <span className="hidden md:inline">Track Order</span>
             </Link>
             <button
+              onClick={() => setTheme((value) => (value === "dark" ? "light" : "dark"))}
+              className="hidden sm:inline-flex p-2 rounded-full transition-all duration-200 hover:bg-secondary"
+              style={{ color: "#F0E8D0" }}
+              aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              title={theme === "dark" ? "Light mode" : "Dark mode"}
+            >
+              {theme === "dark" ? <Sun size={19} /> : <Moon size={19} />}
+            </button>
+            <button
               onClick={onWishlistClick}
               className="hidden sm:inline-flex p-2 rounded-full transition-all duration-200 hover:bg-secondary relative"
               style={{ color: "#F0E8D0" }}
@@ -339,7 +357,7 @@ export function Header({ cartCount, wishlistCount, onCartClick, onWishlistClick 
               <div
                 className="flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl"
                 style={{
-                  background: "#fff",
+                  background: "var(--surface-elevated)",
                   border: "2px solid var(--rose-gold)",
                   borderRadius: searchQuery.trim() ? "1rem 1rem 0 0" : "1rem",
                 }}
@@ -352,7 +370,7 @@ export function Header({ cartCount, wishlistCount, onCartClick, onWishlistClick 
                   style={{
                     fontFamily: "'DM Sans', sans-serif",
                     fontSize: "1.1rem",
-                    color: "#000",
+                    color: "var(--foreground)",
                   }}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -373,9 +391,9 @@ export function Header({ cartCount, wishlistCount, onCartClick, onWishlistClick 
                 {searchQuery && (
                   <button
                     onClick={() => { setSearchQuery(""); setSearchResults([]); }}
-                    className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+                    className="p-1 rounded-full hover:bg-secondary transition-colors"
                   >
-                    <X size={16} style={{ color: "#999" }} />
+                    <X size={16} style={{ color: "var(--muted-foreground)" }} />
                   </button>
                 )}
                 <button onClick={() => { setSearchOpen(false); setSearchQuery(""); setSearchResults([]); }}>
@@ -388,7 +406,7 @@ export function Header({ cartCount, wishlistCount, onCartClick, onWishlistClick 
                 <div
                   className="rounded-b-2xl shadow-2xl overflow-hidden"
                   style={{
-                    background: "#fff",
+                    background: "var(--surface-elevated)",
                     borderLeft: "2px solid var(--rose-gold)",
                     borderRight: "2px solid var(--rose-gold)",
                     borderBottom: "2px solid var(--rose-gold)",
@@ -402,17 +420,17 @@ export function Header({ cartCount, wishlistCount, onCartClick, onWishlistClick 
                         className="w-4 h-4 rounded-full animate-spin"
                         style={{ border: "2px solid rgba(201,168,76,0.2)", borderTopColor: "var(--rose-gold)" }}
                       />
-                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.85rem", color: "#888" }}>
+                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.85rem", color: "var(--muted-foreground)" }}>
                         Searching...
                       </span>
                     </div>
                   ) : searchResults.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-10 px-4">
                       <Search size={28} style={{ color: "rgba(201,168,76,0.4)", marginBottom: 8 }} />
-                      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem", color: "#888", textAlign: "center" }}>
+                      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.9rem", color: "var(--muted-foreground)", textAlign: "center" }}>
                         No jewelry found
                       </p>
-                      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.75rem", color: "#bbb", marginTop: 4 }}>
+                      <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "0.75rem", color: "var(--text-faint)", marginTop: 4 }}>
                         Try a different keyword or browse our collections.
                       </p>
                     </div>
@@ -423,12 +441,12 @@ export function Header({ cartCount, wishlistCount, onCartClick, onWishlistClick 
                           key={product.id}
                           to={`/products/${product.slug}`}
                           onClick={() => { setSearchOpen(false); setSearchQuery(""); setSearchResults([]); }}
-                          className="flex items-center gap-4 px-5 py-3 transition-colors hover:bg-gray-50"
-                          style={{ textDecoration: "none", borderBottom: "1px solid #f0f0f0" }}
+                          className="flex items-center gap-4 px-5 py-3 transition-colors hover:bg-secondary"
+                          style={{ textDecoration: "none", borderBottom: "1px solid rgba(201,168,76,0.12)" }}
                         >
                           <div
                             className="w-12 h-12 rounded-xl overflow-hidden shrink-0"
-                            style={{ background: "#f5f5f0" }}
+                            style={{ background: "var(--surface-soft)" }}
                           >
                             <ImageWithFallback
                               src={product.image}
@@ -443,7 +461,7 @@ export function Header({ cartCount, wishlistCount, onCartClick, onWishlistClick 
                                 fontFamily: "'Playfair Display', serif",
                                 fontSize: "0.88rem",
                                 fontWeight: 600,
-                                color: "#1a1a1a",
+                                color: "var(--foreground)",
                               }}
                             >
                               {product.name}
@@ -452,7 +470,7 @@ export function Header({ cartCount, wishlistCount, onCartClick, onWishlistClick 
                               style={{
                                 fontFamily: "'DM Sans', sans-serif",
                                 fontSize: "0.7rem",
-                                color: "#999",
+                                color: "var(--muted-foreground)",
                                 textTransform: "uppercase",
                                 letterSpacing: "0.1em",
                               }}
@@ -476,7 +494,7 @@ export function Header({ cartCount, wishlistCount, onCartClick, onWishlistClick 
                                 style={{
                                   fontFamily: "'DM Sans', sans-serif",
                                   fontSize: "0.7rem",
-                                  color: "#bbb",
+                                  color: "var(--text-faint)",
                                   textDecoration: "line-through",
                                 }}
                               >
@@ -495,7 +513,7 @@ export function Header({ cartCount, wishlistCount, onCartClick, onWishlistClick 
                           setSearchResults([]);
                           navigate(`/products?q=${encodeURIComponent(q)}`);
                         }}
-                        className="w-full py-3 text-center transition-colors hover:bg-gray-50"
+                        className="w-full py-3 text-center transition-colors hover:bg-secondary"
                         style={{
                           fontFamily: "'DM Sans', sans-serif",
                           fontSize: "0.85rem",
@@ -603,6 +621,14 @@ export function Header({ cartCount, wishlistCount, onCartClick, onWishlistClick 
                 <Heart size={17} />
                 Wishlist
               </Link>
+              <button
+                onClick={() => setTheme((value) => (value === "dark" ? "light" : "dark"))}
+                className="py-3 px-4 rounded-xl transition-colors hover:bg-secondary flex items-center gap-2 text-left"
+                style={{ fontFamily: "'DM Sans', sans-serif", color: "var(--foreground)", textDecoration: "none" }}
+              >
+                {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
+                {theme === "dark" ? "Light Mode" : "Dark Mode"}
+              </button>
               {user ? (
                 <Link
                   to="/profile"
